@@ -1,142 +1,193 @@
 # mercydeck 页型配方
 
-模板 `assets/template.html` 已含 6 个基础页型。本文件是扩展配方——都来自真实 deck(tier0-uns / tier0-dx / ia2-cn)里被反复使用的模式。所有尺寸用 cqw/cqh(容器单位),不要用 px 定字号。
+模板 `assets/template.html` 已含 6 个基础页型。本文件是扩展配方,**全部来自两份参照 deck**:
 
-**两条排版铁律**(违反必翻车,真实评测里两次都栽在这):
-1. **大数字并排,不要纵向堆叠**。三个大号数字/卡片一律横向 `.row`(见下 [三个大数字](#三个大数字-stat-wall));纵向叠三张大数字卡会顶破 16:9 舞台。模板脚本内置 auto-fit:真超高会把整页等比缩小、不裁切——但那是保险丝,触发说明该拆页,别当排版手段用。
-2. **`.center` 只给无 header 的深底页**(封面/章节/收尾)。带 eyebrow+标题的内容页,正文包进 `.body`(在剩余空间居中);误用 `.center` 会让正文盖到标题上。
+- **「henkel总体」**(`decks/tier0-uns/`)—— eyebrow、大数字 + 数据出处、案例页、合作方 logo 墙
+- **「AWS-TIER0」**(`decks/tier0-dx/`)—— 留白、论断页、`.roomy`、条形对比、结论链、分步揭示
+
+尺寸一律 cqw/cqh(容器单位),不要用 px 定字号。带 CSS 的配方,把 `<style>` 里的规则并进模板的 `<style>` 即可。
+
+## 三条硬版式规则(先记住,再往下抄)
+
+1. `.row` 是 `.body` 的**子元素**,不要写 `class="body row"`(会把 `.body` 的垂直居中变成横向居中,版面必歪)。
+2. `.center` 只给**无 header 的深底页**(封面/分章/收尾);有 eyebrow + 标题的内容页,正文包进 `.body`。
+3. 大数字**横向并排**(`.row.base`),纵向堆三张大数字卡会顶破 16:9 舞台。auto-fit 会兜底缩放不裁切,但触发 = 该拆页。
 
 ## 目录
 - [Eyebrow 写法](#eyebrow-写法)
-- [三个大数字(stat wall)](#三个大数字-stat-wall)
+- [论断页](#论断页)
 - [章节分隔页](#章节分隔页)
-- [时间线](#时间线)
-- [流程图(纯 CSS)](#流程图纯-css)
+- [三个大数字(stat wall)](#三个大数字stat-wall)
+- [条形对比页](#条形对比页)
+- [结论流程链](#结论流程链)
 - [对比页(旧 vs 新)](#对比页旧-vs-新)
 - [案例页](#案例页)
-- [多步渐进页](#多步渐进页)
-- [全幅大图页](#全幅大图页)
+- [分步揭示](#分步揭示)
 - [引用页](#引用页)
-- [自定义强调色](#自定义强调色)
+- [全幅大图页](#全幅大图页)
+- [换主题色](#换主题色)
 
 ## Eyebrow 写法
 
-真实 deck 的惯例:`大类 · 细分`,mono 字体,英文大写(哪怕正文是中文):
+henkel总体 的惯例:`大类 · 细分`,mono,英文大写(哪怕正文是中文):
 
 ```
 CHALLENGE            DATA INTEGRATION      DEMO · UNS Agent
-TIMELINE             DEPLOYMENT            SMART FACTORY · ELECTRONICS
-RESULTS              APPLICATION SCENARIOS PROCESS SAFETY · API 754
+RESULTS · 量化效果    DEPLOYMENT            MARKET LEADER · Domestic Standing
 ```
 
-每个内容页都以 eyebrow + accent-line + page-title 开头——这是这套风格最强的识别特征,别省略。
+内容页以 eyebrow + page-title 开头。`accent-line` 是可选的 lime 短横——参照 deck 里定义了却几乎不用,别每页都加。
+
+## 论断页
+
+AWS-TIER0 的招牌:**把结论当标题,独占一页**,底下最多一两行。大量留白就是设计。
+
+```html
+<section class="slide roomy">
+  <div class="center">
+    <h2 class="page-title">投入与回报,<span class="hl">不成正比</span>。</h2>
+    <p class="lead mt">"云、大、智、物、移"俱全的技术,最后做出来的,是一块看板。</p>
+  </div>
+</section>
+```
+
+## 章节分隔页
+
+深底、只有一句话:
+
+```html
+<section class="slide dark">
+  <div class="center mid">
+    <p class="source" style="letter-spacing:.3em">PART 02</p>
+    <h1 class="mt">章节标题</h1>
+  </div>
+</section>
+```
 
 ## 三个大数字(stat wall)
 
-量化效果页的标配:三个大数字**横向并排**(模板 slide 4 就是此型)。数字用 `.big`,下面跟一句说明。**关键:用 `.row` 横排,一行三列**——这样在 16:9 里刚好放得下;若改成纵向一个个往下堆,三个 `.big` 会超出舞台。
+量化效果页的标配。**横向并排,共享底部基线**(`.row.base`),字号本身编码量级——最重要的那个用 `.w3`。数据出处用 `.source` 挂在下面。
 
 ```html
 <section class="slide">
   <div class="eyebrow">RESULTS · 量化效果</div>
-  <div class="accent-line"></div>
   <h2 class="page-title">上线之后,账算得清</h2>
-  <div class="body row mt2" style="align-items:flex-start">
-    <div class="col"><div class="big hl">-60%</div><p class="mt muted">数据接入成本<br>免定制开发,图形化替代人月</p></div>
-    <div class="col"><div class="big">15<span class="num">→2min</span></div><p class="mt muted">故障响应时间<br>边缘就地告警</p></div>
-    <div class="col"><div class="big hl">+8%</div><p class="mt muted">OEE 设备综合效率</p></div>
+  <div class="body">
+    <div class="row base">
+      <div class="col"><div class="big w1 hl">-60%</div><p class="mt muted">数据接入成本</p></div>
+      <div class="col"><div class="big w2">15<span class="num">→2min</span></div><p class="mt muted">故障响应时间</p></div>
+      <div class="col"><div class="big w3 hl">+8<span style="font-size:.5em">%</span></div><p class="mt muted">OEE 设备综合效率</p></div>
+    </div>
+    <p class="source mt2">DATA SOURCE · 项目复盘 2026-06</p>
   </div>
 </section>
 ```
 
-数字多于三个,或每个还带 2–3 条支撑要点(会很高)→ 拆成两页,或改用纵向卡片但**每张只留一行说明**;别硬塞。
+数字多于三个,或每个还要挂 2–3 条支撑要点 → 拆成两页。别硬塞。
 
-## 章节分隔页
+## 条形对比页
 
-深底、超大编号、只有一句话:
-
-```html
-<section class="slide dark">
-  <div class="center">
-    <p class="mono muted" style="font-size:2cqw;letter-spacing:.3em">PART 02</p>
-    <h1 class="mt">章节标题</h1>
-    <div class="accent-line mt"></div>
-  </div>
-</section>
-```
-
-## 时间线
+AWS-TIER0 的 `.barrow`:轴标题降为小号灰色 overline,不与数据抢戏;强调项用主色填充。
 
 ```html
-<div class="row mt2" style="align-items:flex-start;gap:2cqw">
-  <!-- 每个节点一个 col;当前/关键节点加 .key -->
-  <div class="col card"><p class="mono small">2018</p><h3 class="mt">节点标题</h3><p class="muted">一句说明</p></div>
-  <div class="col card key"><p class="mono small">2024</p><h3 class="mt">当前</h3><p class="muted">一句说明</p></div>
+<style>
+  .axis { font-size:1.9cqw; font-weight:700; letter-spacing:.15em; color:var(--ink-3); margin-bottom:.6cqh }
+  .barrow { display:flex; align-items:center; gap:2cqw; margin-top:1.8cqh }
+  .barlabel { flex:0 0 11cqw; font-size:2.1cqw; color:var(--ink-2) }
+  .barlabel strong { color:var(--ink) }
+  .bartrack { flex:1; background:#F0F0F0; height:3.8cqh }
+  .barfill { background:#B9B9B9; height:100%; width:var(--w) }
+  .barfill.on { background:var(--accent) }
+  .barval { flex:0 0 14cqw; font-size:2.1cqw; font-weight:700; font-variant-numeric:tabular-nums }
+</style>
+<div class="body">
+  <p class="axis">交付周期</p>
+  <div class="barrow"><div class="barlabel">传统方式</div>
+    <div class="bartrack"><div class="barfill" style="--w:100%"></div></div><div class="barval">12 周</div></div>
+  <div class="barrow"><div class="barlabel"><strong>Tier0</strong></div>
+    <div class="bartrack"><div class="barfill on" style="--w:17%"></div></div><div class="barval hl">2 周</div></div>
 </div>
 ```
 
-## 流程图(纯 CSS)
+## 结论流程链
 
-来自 ia2-cn 的 `.flow` 模式——盒子 + 箭头,重点盒子高亮。不要为流程图引入图片:
+AWS-TIER0 末页的 `.chain`:主词大、垂落小注、运算符退后。不要为它引入图片。
 
 ```html
-<div class="row mt" style="gap:1.4cqw;align-items:stretch">
-  <div class="col card" style="display:flex;align-items:center;justify-content:center;text-align:center"><h3>输入</h3></div>
-  <div style="flex:0 0 3.5cqw;display:flex;align-items:center;justify-content:center;font-size:3.6cqw;color:#cbcbcb">→</div>
-  <div class="col card key" style="display:flex;align-items:center;justify-content:center;text-align:center"><h3>核心步骤</h3></div>
-  <div style="flex:0 0 3.5cqw;display:flex;align-items:center;justify-content:center;font-size:3.6cqw;color:#cbcbcb">→</div>
-  <div class="col card" style="display:flex;align-items:center;justify-content:center;text-align:center"><h3>输出</h3></div>
+<style>
+  .chain { display:flex; align-items:flex-start; justify-content:center; gap:2.5cqw; margin-top:6cqh }
+  .chainitem { display:flex; flex-direction:column; align-items:center; text-align:center }
+  .chainmain { font-size:2.9cqw; font-weight:700; line-height:1.3 }
+  .chainsub { font-size:1.7cqw; color:var(--ink-3); margin-top:.8cqh }
+  .chainop { font-size:2.6cqw; color:#C5C5C5; line-height:1.45 }
+</style>
+<div class="chain">
+  <div class="chainitem"><div class="chainmain">Agent</div><div class="chainsub">会用工具的模型</div></div>
+  <div class="chainop">×</div>
+  <div class="chainitem"><div class="chainmain">Skill</div><div class="chainsub">把手艺写进提示</div></div>
+  <div class="chainop">→</div>
+  <div class="chainitem"><div class="chainmain hl">TIER0</div><div class="chainsub">现场可交付</div></div>
 </div>
 ```
 
 ## 对比页(旧 vs 新)
 
-左右两卡,旧的灰、新的 key 高亮;标题用 ✗/✓ 或 Before/After:
+左右两卡,旧的灰、新的 `key` 高亮:
 
 ```html
-<div class="body row mt">
-  <div class="col card"><h3 class="muted">传统方式</h3><ul class="mt"><li class="muted">痛点…</li></ul></div>
-  <div class="col card key"><h3 class="hl">mercy 方式</h3><ul class="mt"><li>优势…</li></ul></div>
+<div class="body">
+  <div class="row">
+    <div class="col card"><h3 class="muted">传统方式</h3><ul class="mt"><li class="muted">痛点…</li></ul></div>
+    <div class="col card key"><h3 class="hl">mercy 方式</h3><ul class="mt"><li>优势…</li></ul></div>
+  </div>
 </div>
 ```
 
 ## 案例页
 
-真实惯例(tier0-uns 的 Henkel/Aramco/SMT 页):eyebrow 写行业+场景,标题写 `客户 · 一句话成果`,正文左窄右宽——左边 3 条要点,右边截图/视频:
+henkel总体 的惯例(Henkel / Aramco / SMT 页):eyebrow 写行业 + 场景,标题写 `客户 · 一句话成果`,左窄右宽——左边 3 条要点,右边截图。
 
 ```html
 <section class="slide">
   <div class="eyebrow">WAREHOUSE MANAGEMENT · CUSTOM WMS</div>
-  <div class="accent-line"></div>
   <h2 class="page-title">Henkel · 两周上线定制 WMS</h2>
-  <div class="body row mt">
-    <div class="col" style="flex:0 0 30cqw">
-      <ul><li>背景一句</li><li>做了什么</li><li><span class="hl">量化结果</span></li></ul>
+  <div class="body">
+    <div class="row media">
+      <div class="col" style="flex:0 0 30cqw">
+        <ul><li>背景一句</li><li>做了什么</li><li><span class="hl">量化结果</span></li></ul>
+      </div>
+      <figure class="media col">
+        <img src="assets/henkel-wms-dashboard.png" alt="">
+        <figcaption>上线后的 WMS 看板</figcaption>
+      </figure>
     </div>
-    <figure class="media col"><img src="assets/henkel-dashboard.png" alt=""><figcaption>图注</figcaption></figure>
   </div>
 </section>
 ```
 
-## 多步渐进页
+## 分步揭示
 
-模板导航脚本原生支持:`data-step="0" data-steps="N"`,右键/右击先走步骤再翻页。CSS 按步骤显隐:
+模板脚本原生支持:给元素加 `.frag`,→ 依次点亮,点完才翻页;往回翻自动全亮。只动 opacity,元素始终占位,不跳版、不扰乱 auto-fit。
 
 ```html
-<section class="slide" data-step="0" data-steps="2">
-  <style>
-    /* scoped:第 N 步出现什么 */
-    [data-step="0"] .st1, [data-step="0"] .st2 { opacity:.15 }
-    [data-step="1"] .st2 { opacity:.15 }
-    [data-step="1"] .st1, [data-step="2"] .st1, [data-step="2"] .st2 { opacity:1; transition:opacity .3s }
-  </style>
-  <div class="eyebrow">ARCHITECTURE</div>
-  <h2 class="page-title">分层揭示</h2>
-  <div class="body">
-    <div class="card">基础层(一直可见)</div>
-    <div class="card st1 mt">第 1 步出现</div>
-    <div class="card st2 mt">第 2 步出现</div>
-  </div>
-</section>
+<div class="body">
+  <ul>
+    <li>一直可见的前提</li>
+    <li class="frag">按一下才出现</li>
+    <li class="frag">再按一下</li>
+  </ul>
+</div>
+```
+
+## 引用页
+
+客户原话,细线分隔:
+
+```html
+<div class="body">
+  <p class="quote">"以前排查一次要两小时,现在告警自己就把根因贴脸上了。"
+    <span class="by">— 姓名 · 头衔 · 公司</span></p>
+</div>
 ```
 
 ## 全幅大图页
@@ -149,29 +200,22 @@ RESULTS              APPLICATION SCENARIOS PROCESS SAFETY · API 754
   <div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(5,11,20,.82))"></div>
   <div style="position:absolute;left:8cqw;bottom:9cqh;color:#fff;max-width:70cqw">
     <h2 style="font-size:4.6cqw">压在图上的标题</h2>
-    <p class="mt" style="color:#c9cdd3">一句说明。</p>
+    <p class="mt" style="color:#C9CDD3">一句说明。</p>
   </div>
 </section>
 ```
 
-## 引用页
+## 换主题色
 
-```html
-<section class="slide">
-  <div class="center" style="max-width:78cqw">
-    <p style="font-size:3.6cqw;line-height:1.5;font-weight:500">"引用原话,别超过两行。"</p>
-    <p class="small mt2 mono">— 姓名 · 头衔 · 公司</p>
-  </div>
-</section>
-```
-
-## 自定义强调色
-
-默认 Tier0 lime 系。如果 deck 有自己的主题色(如 ia2-cn 用蓝紫渐变),只改 `:root` 的 `--lime/--deep-green/--green-tint`,或加渐变文字类;**其它 token 不动**,保证同族观感:
+默认 Tier0 绿(henkel总体)。**AWS-TIER0 用的是 SUPCON 炫彩渐变**——只改这一段,中性色 token 一律不动:
 
 ```css
-:root { --lime:#00B3FF; --deep-green:#0057E3; --green-tint:#EAF3FF; }
-/* 渐变高亮字(ia2 风格,只用于个别重点词) */
-.hlg { background:linear-gradient(100deg,#00B3FF,#0057E3 40%,#5A2BE0 75%);
-       -webkit-background-clip:text; background-clip:text; color:transparent; font-weight:700 }
+:root { --accent: #0057E3; }
+.hl, .metric {
+  background: linear-gradient(100deg,#00B3FF 0%,#0057E3 36%,#5A2BE0 70%,#C71E8E 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
 ```
+
+深底页上的 `.hl` 仍用 `--lime`,渐变在黑底上会糊。

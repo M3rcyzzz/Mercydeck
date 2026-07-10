@@ -6,105 +6,144 @@
 <title>DECK TITLE · 演讲 Deck</title>
 <style>
   /* ══════════ mercydeck standard ══════════
-     16:9 stage letterboxed by pure CSS; all type in cqw/cqh so every
-     screen (laptop, projector, phone) renders the same composition. */
+     参照 deck:「henkel总体」(tier0-uns) 与「AWS-TIER0」(tier0-dx)。
+     16:9 舞台由纯 CSS letterbox;字号一律 cqw/cqh,所以投影仪 / 笔记本 /
+     手机上是同一套构图。留白是这套风格的主角——别把页填满。 */
   * { margin: 0; padding: 0; box-sizing: border-box; }
   :root {
-    /* Tier0 brand tokens (default theme) */
-    --ink:        #050B14;   /* fx-black  — headings, body */
-    --ink-2:      #585C62;   /* secondary text */
-    --ink-3:      #ACAEB1;   /* captions / disabled */
+    /* Tier0 brand tokens(henkel总体 的 :root) */
+    --ink:        #050B14;   /* fx-black —— 标题与正文 */
+    --ink-2:      #585C62;   /* 次级文字 */
+    --ink-3:      #ACAEB1;   /* 图注 / 弱化 */
     --paper:      #FFFFFF;
     --paper-dim:  #FAFAFA;
-    --lime:       #B2ED1D;   /* brand accent — lines, markers, highlights on dark */
-    --deep-green: #73B200;   /* accent text / links on light bg */
-    --green-tint: #F0FBD2;   /* eyebrow bg, subtle fills */
+    --lime:       #B2ED1D;   /* 品牌亮色 —— 进度条、深底上的高亮 */
+    --deep-green: #73B200;   /* 浅底上的强调字与大数字 */
+    --green-tint: #F0FBD2;   /* eyebrow 底色 */
     --border:     #E3E5E8;
-    --radius:     1.6cqw;
+    --radius:     10px;
+    /* 系统字体栈:零外链(观众在国内,Google Fonts 会卡死) */
     --font-sans:  "IBM Plex Sans", -apple-system, "PingFang SC", "Source Han Sans SC", "Microsoft YaHei", system-ui, sans-serif;
     --font-mono:  "IBM Plex Mono", Menlo, Consolas, monospace;
+    /* 强调色只有一个开关:见文件末尾「换主题」注释 */
+    --accent:     var(--deep-green);
   }
   html, body { background: #555; font-family: var(--font-sans); color: var(--ink); }
   #stage { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
 
   .slide {
     display: none;
-    width: 100vw; height: 56.25vw;            /* 16:9 via CSS only */
+    width: 100vw; height: 56.25vw;            /* 16:9,纯 CSS */
     max-height: 100vh; max-width: 177.78vh;
     background: var(--paper);
     position: relative; overflow: hidden;
-    padding: 7cqh 8cqw;
-    container-type: size;                      /* enables cqw/cqh typography */
+    padding: 7% 8%;                            /* AWS-TIER0 的留白比例 */
+    container-type: size;                      /* 开启 cqw/cqh */
   }
+  /* 标题锚顶,.body 在剩余空间垂直居中 —— 翻页时标题位置恒定 */
   .slide.active { display: flex; flex-direction: column; }
-  /* auto-fit wrapper (inserted at runtime around each slide's content): lets the
-     script scale a slide down if its content is taller than the 16:9 stage, so a
-     data-heavy page can never silently clip under overflow:hidden. Authors write
-     plain slides; the wrapper is transparent. */
+  /* auto-fit 包裹层(脚本运行时插入):内容超高就整页等比缩小,
+     绝不让 overflow:hidden 悄悄裁掉正文。作者照常写普通 slide。 */
   .fitwrap { flex: 1; display: flex; flex-direction: column; min-height: 0; min-width: 0; width: 100%; transform-origin: top left; }
-  .slide.active .body, .slide.active .center { animation: fadeUp .45s ease-out both; }
-  @keyframes fadeUp { from { opacity: 0; } to { opacity: 1; } }   /* opacity-only: a transform here would skew auto-fit's height measure */
 
-  /* ── typography scale (container units) ── */
-  h1 { font-size: 6.5cqw; line-height: 1.12; font-weight: 600; letter-spacing: -0.015em; }
-  h2 { font-size: 4.2cqw; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; }
-  h3 { font-size: 2.6cqw; line-height: 1.3;  font-weight: 600; }
-  p, li { font-size: 2.3cqw; line-height: 1.7; }
-  .lead  { font-size: 2.8cqw; line-height: 1.55; color: var(--ink-2); max-width: 76cqw; }
+  /* ── 入场:标题先,正文随后。只动 opacity——
+        这里若用 transform 会让 auto-fit 量错高度。 ── */
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .slide.active .fitwrap > * { animation: fadeIn .5s ease both; }
+  .slide.active .fitwrap > *:nth-child(2) { animation-delay: .08s; }
+  .slide.active .fitwrap > .center { animation: none; }
+  .slide.active .center > * { animation: fadeIn .55s ease both; }
+  .slide.active .center > *:nth-child(2) { animation-delay: .16s; }
+
+  /* ── 字号(容器单位;数值取自两份参照 deck) ── */
+  h1 { font-size: 7cqw;   line-height: 1.12; font-weight: 700; letter-spacing: -0.015em; }
+  h2, .page-title { font-size: 4.4cqw; line-height: 1.15; font-weight: 700; letter-spacing: -0.01em; }
+  h3 { font-size: 2.9cqw; line-height: 1.25; font-weight: 700; }
+  p, li { font-size: 2.2cqw; line-height: 1.7; }
+  .lead  { font-size: 2.7cqw; line-height: 1.55; color: var(--ink-2); max-width: 68cqw; }
   .muted { color: var(--ink-2); }
   .small { font-size: 1.8cqw; color: var(--ink-3); }
   .mono  { font-family: var(--font-mono); }
-  strong { font-weight: 600; }
+  /* 图注 / 数据出处:mono + 灰,退到背景里 */
+  .source { font-family: var(--font-mono); font-size: 1.5cqw; color: var(--ink-3); letter-spacing: .04em; }
+  strong { font-weight: 700; }
 
-  /* ── shared atoms (Tier0) ── */
-  .eyebrow {                                   /* slide category tag, e.g. "DEMO · UNS Agent" */
+  /* ── eyebrow:页面分类标签,`大类 · 细分`,mono ── */
+  .eyebrow {
     display: inline-block; align-self: flex-start;
     background: var(--green-tint); color: var(--deep-green);
     font-family: var(--font-mono); font-size: 1.6cqw; letter-spacing: .06em;
-    padding: .6cqh 1.4cqw; border-radius: .3cqw; margin-bottom: 2.4cqh;
+    padding: .6cqh 1.4cqw; border-radius: 2px; margin-bottom: 2.4cqh;
   }
-  .accent-line { height: .55cqh; width: 5cqw; background: var(--lime); border-radius: .3cqh; margin-bottom: 2.2cqh; }
-  .page-title { font-size: 5cqw; line-height: 1.12; font-weight: 600; letter-spacing: -0.01em; }
-  .page-sub   { margin-top: 1.6cqh; font-size: 2.1cqw; line-height: 1.55; color: var(--ink-2); max-width: 72cqw; }
+  /* 可选的 lime 短横线。参照 deck 里定义了但几乎不用——想要更硬的分节感再加,
+     不是每页必需。 */
+  .accent-line { height: .5cqh; width: 5cqw; background: var(--lime); border-radius: 2px; margin-bottom: 2.2cqh; }
 
   .body   { flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 0; }
   .center { flex: 1; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; }
-  .row { display: flex; flex-direction: row; gap: 4.5cqw; min-height: 0; }   /* row must beat .body's column */
+  .center.mid { align-items: center; text-align: center; }        /* 宣言 / 分章页 */
+  /* .row 是 .body 的【子元素】,不要写成 class="body row" ——
+     那样 .body 的 justify-content:center 会跑到横轴上,版面必歪。
+     (两份参照 deck 里 body 与 row 从不合用。) */
+  .row { display: flex; flex-direction: row; gap: 5cqw; min-height: 0; }
+  .row.media { align-items: center; }
+  .row.base  { align-items: baseline; }   /* 大数字共享底部基线 */
   .col { flex: 1; min-width: 0; }
-  .mt  { margin-top: 3cqh; }
-  .mt2 { margin-top: 5.5cqh; }
+  .mt  { margin-top: 3.5cqh; }
+  .mt2 { margin-top: 6cqh; }
 
-  ul { padding-left: 1.2em; }
-  li { margin-bottom: 1.6cqh; }
-  li::marker { color: var(--deep-green); }
+  ul { padding-left: 1.3em; }
+  li { margin-bottom: 1.8cqh; }
+  li::marker { color: var(--accent); }
 
-  .big { font-size: 9cqw; font-weight: 700; line-height: 1; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
-  .num { font-size: 6cqw; font-weight: 700; line-height: 1; letter-spacing: -0.01em; }
-  .hl  { color: var(--deep-green); font-weight: 600; }
+  /* ── 大数字:字号本身编码量级(w1<w2<w3),共享底部基线 ── */
+  .big { font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+  .big.w1 { font-size: 6cqw; }
+  .big.w2 { font-size: 7.5cqw; }
+  .big.w3 { font-size: 12cqw; }
+  .big.dim, .num { color: var(--ink-3); }
+  .metric { font-size: 5cqw; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+  /* 强调:只给少数关键词与大数字。整页最多两三处。 */
+  .hl, .metric { color: var(--accent); font-weight: 700; }
+  .op { color: #C5C5C5; font-weight: 400; }   /* 等式页的运算符:退后,让词浮出 */
 
-  .card {
-    border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 3.2cqh 2.4cqw; background: var(--paper);
-  }
-  .card.key { border-color: var(--deep-green); border-width: .18cqw; background: linear-gradient(180deg, #F6FCE4 0%, var(--green-tint) 100%); }
+  .card { border: 1px solid var(--border); border-radius: var(--radius); padding: 3.2cqh 2.4cqw; background: var(--paper); }
+  .card.key { border-color: var(--accent); background: linear-gradient(180deg, #F6FCE4 0%, var(--green-tint) 100%); }
 
-  figure.media { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  /* 细线分隔的数据区 / 引言 */
+  .stats { display: flex; flex-direction: column; gap: 3cqh; margin-top: 4cqh; padding-top: 3cqh; border-top: 1px solid var(--border); }
+  .quote { font-size: 2.5cqw; font-weight: 700; line-height: 1.6; margin-top: 4cqh; padding-top: 3cqh; border-top: 1px solid var(--border); }
+  .quote .by { display: block; font-size: 1.8cqw; color: var(--ink-3); font-weight: 400; margin-top: 1.2cqh; }
+
+  figure.media { min-width: 0; display: flex; flex-direction: column; }
   figure.media img, figure.media video {
-    flex: 1; min-height: 0; width: 100%; object-fit: contain;
-    border: 1px solid var(--border); border-radius: var(--radius); background: #000;
+    width: 100%; max-height: 60cqh; object-fit: contain;
+    border: 1px solid var(--border); border-radius: var(--radius); background: var(--paper-dim);
   }
-  figure.media figcaption { margin-top: 1.2cqh; font-size: 1.7cqw; color: var(--ink-3); }
+  figure.media figcaption { margin-top: 1.2cqh; font-family: var(--font-mono); font-size: 1.5cqw; color: var(--ink-3); }
 
-  /* dark slide variant — covers, section dividers, closers */
+  /* 信息密度低的页整体放大(AWS-TIER0 的 .roomy) */
+  .roomy h3 { font-size: 3.6cqw; }
+  .roomy p, .roomy li { font-size: 2.7cqw; line-height: 1.75; }
+  .roomy li { margin-bottom: 2.6cqh; }
+  .roomy .lead { font-size: 3.1cqw; }
+  .roomy .metric { font-size: 5.6cqw; }
+
+  /* ── 分步揭示:给元素加 .frag,按 → 依次浮现 ──
+     只动 opacity:元素始终占位,翻步不跳版,也不会扰乱 auto-fit 的测量。 */
+  .frag { opacity: 0; transition: opacity .4s ease; }
+  .frag.on { opacity: 1; }
+
+  /* 深底页 —— 封面 / 分章 / 收尾 */
   .slide.dark { background: var(--ink); color: #fff; }
-  .slide.dark .muted, .slide.dark .page-sub, .slide.dark .lead { color: #B7BCC3; }
-  .slide.dark .small { color: #7E848C; }
-  .slide.dark .hl { color: var(--lime); }
+  .slide.dark .muted, .slide.dark .lead { color: #B7BCC3; }
+  .slide.dark .small, .slide.dark .source { color: #7E848C; }
+  .slide.dark .hl, .slide.dark .metric { color: var(--lime); }
   .slide.dark .eyebrow { background: rgba(178,237,29,.14); color: var(--lime); }
   .slide.dark .card { background: rgba(255,255,255,.04); border-color: #2A313A; }
   .slide.dark li::marker { color: var(--lime); }
 
-  /* ── HUD nav pill ── */
+  /* ── HUD 翻页条 ── */
   .hud {
     position: fixed; left: 50%; bottom: max(14px, 2vh); transform: translateX(-50%);
     display: flex; align-items: center; gap: 12px;
@@ -119,85 +158,93 @@
   .hud button:hover { background: var(--green-tint); }
   .hud button:disabled { color: var(--ink-3); cursor: default; }
   .hud .page-num { font-size: 12px; color: var(--ink-2); min-width: 52px; text-align: center; }
-  .hud .track { width: 72px; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
-  .hud .fill { height: 100%; width: 0; background: var(--lime); transition: width .25s; }
+  .hud .track { width: 110px; height: 4px; background: var(--green-tint); border-radius: 2px; overflow: hidden; }
+  .hud .fill { height: 100%; width: 0; background: var(--deep-green); transition: width .25s; }
+
+  /* ══════════ 换主题 ══════════
+     默认是 Tier0 绿(「henkel总体」)。「AWS-TIER0」用的是 SUPCON 炫彩渐变:
+     只改下面这一段,其余 token 不动。
+       :root { --accent: #0057E3; }
+       .hl, .metric {
+         background: linear-gradient(100deg,#00B3FF 0%,#0057E3 36%,#5A2BE0 70%,#C71E8E 100%);
+         -webkit-background-clip: text; background-clip: text;
+         -webkit-text-fill-color: transparent; color: transparent;
+       }
+     ════════════════════════════ */
 </style>
 </head>
 <body>
 <div id="stage">
 
-  <!-- ═══ 1. COVER (dark) ═══ -->
+  <!-- ═══ 1. 封面(深底) ═══ -->
   <section class="slide dark active">
     <div class="center">
-      <div class="eyebrow mono">COMPANY · TOPIC</div>
+      <div class="eyebrow">COMPANY · TOPIC</div>
       <h1>Deck 主标题<br><span class="hl">重点词</span>放这里</h1>
-      <p class="lead mt">一句话副标题：这份 deck 讲什么、给谁看。</p>
-      <p class="small mt2 mono">PRESENTER · 2026-01</p>
+      <p class="lead mt">一句话副标题:这份 deck 讲什么、给谁看。</p>
+      <p class="source mt2">PRESENTER · 2026-01</p>
     </div>
   </section>
 
-  <!-- ═══ 2. CONTENT + BULLETS ═══ -->
+  <!-- ═══ 2. 论断页:一句话独占一页(AWS-TIER0 的招牌页型) ═══ -->
+  <section class="slide roomy">
+    <div class="center">
+      <h2 class="page-title">把结论直接说出来,<span class="hl">别铺垫</span>。</h2>
+      <p class="lead mt">底下最多一两行解释。留白就是重点。</p>
+    </div>
+  </section>
+
+  <!-- ═══ 3. 要点页 ═══ -->
   <section class="slide">
     <div class="eyebrow">SECTION · Sub-topic</div>
-    <div class="accent-line"></div>
     <h2 class="page-title">要点页标题</h2>
     <div class="body">
       <ul class="mt" style="max-width:72cqw">
-        <li><strong>要点一</strong>：一句话说清楚，别堆从句。</li>
-        <li><strong>要点二</strong>：数字和名词加 <span class="hl">高亮</span>。</li>
-        <li><strong>要点三</strong>：每页 3–5 条为上限。</li>
+        <li><strong>要点一</strong>:一句话说清楚,别堆从句。</li>
+        <li><strong>要点二</strong>:数字和名词加 <span class="hl">高亮</span>。</li>
+        <li><strong>要点三</strong>:每页 3–5 条为上限。</li>
       </ul>
     </div>
   </section>
 
-  <!-- ═══ 3. TWO-COLUMN: text + media ═══ -->
+  <!-- ═══ 4. 数字页:横向并排,字号编码量级 ═══ -->
   <section class="slide">
-    <div class="eyebrow">PRODUCT · Feature</div>
-    <div class="accent-line"></div>
-    <h2 class="page-title">左文右图</h2>
-    <div class="body row mt">
-      <div class="col">
-        <h3>小标题</h3>
-        <ul class="mt">
-          <li>说明第一点</li>
-          <li>说明第二点</li>
-        </ul>
+    <div class="eyebrow">RESULTS · 量化效果</div>
+    <h2 class="page-title">上线之后,账算得清</h2>
+    <div class="body">
+      <div class="row base">
+        <div class="col"><div class="big w1 hl">-60%</div><p class="mt muted">数据接入成本</p></div>
+        <div class="col"><div class="big w2">15<span class="num">→2min</span></div><p class="mt muted">故障响应时间</p></div>
+        <div class="col"><div class="big w3 hl">+8<span style="font-size:.5em">%</span></div><p class="mt muted">OEE 设备综合效率</p></div>
       </div>
-      <figure class="media col">
-        <img src="assets/placeholder.png" alt="截图说明">
-        <figcaption>图注：说明这张图在证明什么</figcaption>
-      </figure>
+      <p class="source mt2">DATA SOURCE · 项目复盘 2026-06</p>
     </div>
   </section>
 
-  <!-- ═══ 4. STAT WALL ═══ -->
-  <section class="slide">
-    <div class="eyebrow">RESULTS</div>
-    <div class="accent-line"></div>
-    <h2 class="page-title">数字页</h2>
-    <div class="body row mt2" style="align-items:flex-start">
-      <div class="col"><div class="big hl">3×</div><p class="mt muted">指标一说明</p></div>
-      <div class="col"><div class="big">15<span class="num">min</span></div><p class="mt muted">指标二说明</p></div>
-      <div class="col"><div class="big">99.9<span class="num">%</span></div><p class="mt muted">指标三说明</p></div>
-    </div>
-  </section>
-
-  <!-- ═══ 5. VIDEO DEMO PAGE ═══ -->
+  <!-- ═══ 5. 左文右图 / 视频 ═══ -->
   <section class="slide">
     <div class="eyebrow">DEMO · Feature name</div>
-    <div class="accent-line"></div>
-    <h2 class="page-title">演示：一句话说明看什么</h2>
-    <figure class="media mt">
-      <video src="videos/demo.mp4" muted loop playsinline preload="metadata" controls></video>
-      <figcaption>视频自动播放；无声循环，翻走即停</figcaption>
-    </figure>
+    <h2 class="page-title">演示:一句话说明看什么</h2>
+    <div class="body">
+      <div class="row media">
+        <div class="col">
+          <ul>
+            <li>说明第一点</li>
+            <li class="frag">→ 按一下才出现的第二点</li>
+          </ul>
+        </div>
+        <figure class="media col">
+          <video src="videos/demo.mp4" muted loop playsinline preload="metadata" controls></video>
+          <figcaption>视频进页自动播,翻走即停</figcaption>
+        </figure>
+      </div>
+    </div>
   </section>
 
-  <!-- ═══ 6. CLOSING (dark) ═══ -->
+  <!-- ═══ 6. 收尾(深底) ═══ -->
   <section class="slide dark">
     <div class="center">
-      <div class="accent-line"></div>
-      <h1>收尾金句，<span class="hl">一句话</span>。</h1>
+      <h1>收尾金句,<span class="hl">一句话</span>。</h1>
       <p class="lead mt">下一步行动 / 联系方式。</p>
     </div>
   </section>
@@ -220,10 +267,9 @@
         prevBtn=document.getElementById('prevBtn'), nextBtn=document.getElementById('nextBtn');
   tot.textContent = total;
 
-  // ── auto-fit: wrap each slide's content, then scale it down if it's taller/
-  //    wider than the stage. This is the safety net that makes vertical overflow
-  //    impossible — a page with too many big numbers shrinks instead of clipping.
-  //    (Still lay pages out to fit by design; this just guarantees nothing is lost.)
+  // ── auto-fit:把每页内容包一层,超出舞台就整体缩小。
+  //    这样"塞太多"只会变小,不会被 overflow:hidden 裁掉。
+  //    (设计上仍应放得下;缩放触发 = 该拆页的信号。)
   slides.forEach(s=>{
     const w = document.createElement('div'); w.className = 'fitwrap';
     while (s.firstChild) w.appendChild(s.firstChild);
@@ -233,48 +279,47 @@
     const w = s.firstElementChild;
     if (!w || !w.classList.contains('fitwrap')) return;
     w.style.transform = 'none';
-    // vertically-centered bodies overflow BOTH ways; scrollHeight only sees the
-    // downward half. Force top-alignment while measuring so the scale is honest.
-    const flexers = [...w.querySelectorAll('.body, .center')];
+    // 垂直居中的 .body 会向上下双向溢出,而 scrollHeight 只看得到向下那半。
+    // 量的时候先顶对齐,算出的比例才诚实。
+    const flexers = Array.from(w.querySelectorAll('.body, .center'));
     const prev = flexers.map(f => f.style.justifyContent);
     flexers.forEach(f => f.style.justifyContent = 'flex-start');
     const cs = getComputedStyle(s);
     const availH = s.clientHeight - parseFloat(cs.paddingTop)  - parseFloat(cs.paddingBottom);
     const availW = s.clientWidth  - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
     const k = Math.min(availH / w.scrollHeight, availW / w.scrollWidth);
-    if (k < 0.995) {
-      w.style.transform = 'scale(' + k.toFixed(4) + ')';   // overflowed: keep top-aligned + scaled
-    } else {
-      flexers.forEach((f, i) => f.style.justifyContent = prev[i]);  // fits: restore centering
-    }
+    if (k < 0.995) w.style.transform = 'scale(' + k.toFixed(4) + ')';   // 超了:顶对齐 + 缩放
+    else flexers.forEach((f, i) => f.style.justifyContent = prev[i]);   // 放得下:恢复居中
   }
   function fitActive(){ requestAnimationFrame(()=>fit(slides[idx])); }
 
-  function show(n){
+  const fragsOf = s => Array.from(s.querySelectorAll('.frag'));
+
+  function show(n, revealAll){
     idx = Math.max(0, Math.min(total-1, n));
     slides.forEach((s,i)=>{
       s.classList.toggle('active', i===idx);
-      if (s.dataset.step !== undefined && i!==idx) s.dataset.step = '0';
+      if (i!==idx) fragsOf(s).forEach(f=>f.classList.remove('on'));
       const v = s.querySelector('video');
       if (v) { if (i===idx) { v.currentTime = 0; v.play().catch(()=>{}); } else v.pause(); }
     });
+    if (revealAll) fragsOf(slides[idx]).forEach(f=>f.classList.add('on'));
     curr.textContent = idx+1;
     fill.style.width = ((idx+1)/total*100)+'%';
     prevBtn.disabled = idx===0; nextBtn.disabled = idx===total-1;
     location.hash = idx+1;
     fitActive();
   }
-  // multi-step slides: <section class="slide" data-step="0" data-steps="4"> —
-  // "next" walks steps before advancing; CSS keys off [data-step="N"].
+  // 分步页:→ 先把本页的 .frag 一个个点亮,点完才翻页
   function next(){
-    const s = slides[idx], st = s.dataset;
-    if (st.steps && +st.step < +st.steps) { st.step = String(+st.step+1); fitActive(); return; }
+    const hidden = fragsOf(slides[idx]).find(f=>!f.classList.contains('on'));
+    if (hidden) { hidden.classList.add('on'); return; }
     show(idx+1);
   }
   function prev(){
-    const s = slides[idx], st = s.dataset;
-    if (st.steps && +st.step > 0) { st.step = String(+st.step-1); fitActive(); return; }
-    show(idx-1);
+    const shown = fragsOf(slides[idx]).slice().reverse().find(f=>f.classList.contains('on'));
+    if (shown) { shown.classList.remove('on'); return; }
+    show(idx-1, true);              // 往回翻:上一页的分步内容直接全亮
   }
   prevBtn.addEventListener('click', prev);
   nextBtn.addEventListener('click', next);
@@ -284,13 +329,13 @@
     else if (e.key==='Home') show(0);
     else if (e.key==='End') show(total-1);
   });
-  // click zones: right 40% next, left 15% prev (ignore interactive elements)
+  // 点击分区:右 40% 下一步,左 15% 上一步(避开可交互元素)
   document.getElementById('stage').addEventListener('click', e=>{
     if (e.target.closest('video,button,a,input,[contenteditable]')) return;
     const x = e.clientX / innerWidth;
     if (x > 0.6) next(); else if (x < 0.15) prev();
   });
-  // touch swipe for phones
+  // 手机滑动
   let x0=null;
   addEventListener('touchstart', e=>{ x0=e.touches[0].clientX; }, {passive:true});
   addEventListener('touchend', e=>{
@@ -298,7 +343,7 @@
     const dx=e.changedTouches[0].clientX-x0; x0=null;
     if (Math.abs(dx)>45) (dx<0?next:prev)();
   }, {passive:true});
-  // re-fit when the stage size or font metrics change
+
   addEventListener('resize', fitActive);
   addEventListener('load', fitActive);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitActive);

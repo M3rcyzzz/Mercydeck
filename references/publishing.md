@@ -41,5 +41,5 @@ deck 最终跑在用户自建的托管栈上:AWS 源站 → Cloudflare 隧道/�
 4. 视频全部 ≤1080p、带 `muted loop playsinline preload="metadata" controls`
 5. 手机宽度(390px)模拟:无横向滚动,文字可读
 6. **16:9(如 1600×900)逐页看竖直方向**:内容不被裁切、标题没被正文盖住、大数字页是横向并排。模板 auto-fit 会兜底把超高的页等比缩小(不裁切),但**若某页明显被缩小**就是塞太多了——拆页或降密度,别靠缩放救
-7. 每个内容页有 eyebrow(`大类 · 细分` 英文 mono)+ accent-line + 标题
+7. 每个内容页有 eyebrow(`大类 · 细分` 英文 mono)+ 标题;`.row` 都嵌在 `.body` 里(没有 `class="body row"`)
 8. 单页文字 ≤5 个要点;数字/结论用 `.hl` 或 `.big` 强调
