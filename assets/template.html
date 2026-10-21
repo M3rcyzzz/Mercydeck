@@ -1,355 +1,334 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DECK TITLE · 演讲 Deck</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deck 标题</title>
 <style>
-  /* ══════════ mercydeck standard ══════════
-     参照 deck:「henkel总体」(tier0-uns) 与「AWS-TIER0」(tier0-dx)。
-     16:9 舞台由纯 CSS letterbox;字号一律 cqw/cqh,所以投影仪 / 笔记本 /
-     手机上是同一套构图。留白是这套风格的主角——别把页填满。 */
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  :root {
-    /* Tier0 brand tokens(henkel总体 的 :root) */
-    --ink:        #050B14;   /* fx-black —— 标题与正文 */
-    --ink-2:      #585C62;   /* 次级文字 */
-    --ink-3:      #ACAEB1;   /* 图注 / 弱化 */
-    --paper:      #FFFFFF;
-    --paper-dim:  #FAFAFA;
-    --lime:       #B2ED1D;   /* 品牌亮色 —— 进度条、深底上的高亮 */
-    --deep-green: #73B200;   /* 浅底上的强调字与大数字 */
-    --green-tint: #F0FBD2;   /* eyebrow 底色 */
-    --border:     #E3E5E8;
-    --radius:     10px;
-    /* 系统字体栈:零外链(观众在国内,Google Fonts 会卡死) */
-    --font-sans:  "IBM Plex Sans", -apple-system, "PingFang SC", "Source Han Sans SC", "Microsoft YaHei", system-ui, sans-serif;
-    --font-mono:  "IBM Plex Mono", Menlo, Consolas, monospace;
-    /* 强调色只有一个开关:见文件末尾「换主题」注释 */
-    --accent:     var(--deep-green);
-  }
-  html, body { background: #555; font-family: var(--font-sans); color: var(--ink); }
-  #stage { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
-
-  .slide {
-    display: none;
-    width: 100vw; height: 56.25vw;            /* 16:9,纯 CSS */
-    max-height: 100vh; max-width: 177.78vh;
-    background: var(--paper);
-    position: relative; overflow: hidden;
-    padding: 7% 8%;                            /* AWS-TIER0 的留白比例 */
-    container-type: size;                      /* 开启 cqw/cqh */
-  }
-  /* 标题锚顶,.body 在剩余空间垂直居中 —— 翻页时标题位置恒定 */
-  .slide.active { display: flex; flex-direction: column; }
-  /* auto-fit 包裹层(脚本运行时插入):内容超高就整页等比缩小,
-     绝不让 overflow:hidden 悄悄裁掉正文。作者照常写普通 slide。 */
-  .fitwrap { flex: 1; display: flex; flex-direction: column; min-height: 0; min-width: 0; width: 100%; transform-origin: top left; }
-
-  /* ── 入场:标题先,正文随后。只动 opacity——
-        这里若用 transform 会让 auto-fit 量错高度。 ── */
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  .slide.active .fitwrap > * { animation: fadeIn .5s ease both; }
-  .slide.active .fitwrap > *:nth-child(2) { animation-delay: .08s; }
-  .slide.active .fitwrap > .center { animation: none; }
-  .slide.active .center > * { animation: fadeIn .55s ease both; }
-  .slide.active .center > *:nth-child(2) { animation-delay: .16s; }
-
-  /* ── 字号(容器单位;数值取自两份参照 deck) ── */
-  h1 { font-size: 7cqw;   line-height: 1.12; font-weight: 700; letter-spacing: -0.015em; }
-  h2, .page-title { font-size: 4.4cqw; line-height: 1.15; font-weight: 700; letter-spacing: -0.01em; }
-  h3 { font-size: 2.9cqw; line-height: 1.25; font-weight: 700; }
-  p, li { font-size: 2.2cqw; line-height: 1.7; }
-  .lead  { font-size: 2.7cqw; line-height: 1.55; color: var(--ink-2); max-width: 68cqw; }
-  .muted { color: var(--ink-2); }
-  .small { font-size: 1.8cqw; color: var(--ink-3); }
-  .mono  { font-family: var(--font-mono); }
-  /* 图注 / 数据出处:mono + 灰,退到背景里 */
-  .source { font-family: var(--font-mono); font-size: 1.5cqw; color: var(--ink-3); letter-spacing: .04em; }
-  strong { font-weight: 700; }
-
-  /* ── eyebrow:页面分类标签,`大类 · 细分`,mono ── */
-  .eyebrow {
-    display: inline-block; align-self: flex-start;
-    background: var(--green-tint); color: var(--deep-green);
-    font-family: var(--font-mono); font-size: 1.6cqw; letter-spacing: .06em;
-    padding: .6cqh 1.4cqw; border-radius: 2px; margin-bottom: 2.4cqh;
-  }
-  /* 可选的 lime 短横线。参照 deck 里定义了但几乎不用——想要更硬的分节感再加,
-     不是每页必需。 */
-  .accent-line { height: .5cqh; width: 5cqw; background: var(--lime); border-radius: 2px; margin-bottom: 2.2cqh; }
-
-  .body   { flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 0; }
-  .center { flex: 1; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; }
-  .center.mid { align-items: center; text-align: center; }        /* 宣言 / 分章页 */
-  /* .row 是 .body 的【子元素】,不要写成 class="body row" ——
-     那样 .body 的 justify-content:center 会跑到横轴上,版面必歪。
-     (两份参照 deck 里 body 与 row 从不合用。) */
-  .row { display: flex; flex-direction: row; gap: 5cqw; min-height: 0; }
-  .row.media { align-items: center; }
-  .row.base  { align-items: baseline; }   /* 大数字共享底部基线 */
-  .col { flex: 1; min-width: 0; }
-  .mt  { margin-top: 3.5cqh; }
-  .mt2 { margin-top: 6cqh; }
-
-  ul { padding-left: 1.3em; }
-  li { margin-bottom: 1.8cqh; }
-  li::marker { color: var(--accent); }
-
-  /* ── 大数字:字号本身编码量级(w1<w2<w3),共享底部基线 ── */
-  .big { font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
-  .big.w1 { font-size: 6cqw; }
-  .big.w2 { font-size: 7.5cqw; }
-  .big.w3 { font-size: 12cqw; }
-  .big.dim, .num { color: var(--ink-3); }
-  .metric { font-size: 5cqw; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
-  /* 强调:只给少数关键词与大数字。整页最多两三处。 */
-  .hl, .metric { color: var(--accent); font-weight: 700; }
-  .op { color: #C5C5C5; font-weight: 400; }   /* 等式页的运算符:退后,让词浮出 */
-
-  .card { border: 1px solid var(--border); border-radius: var(--radius); padding: 3.2cqh 2.4cqw; background: var(--paper); }
-  .card.key { border-color: var(--accent); background: linear-gradient(180deg, #F6FCE4 0%, var(--green-tint) 100%); }
-
-  /* 细线分隔的数据区 / 引言 */
-  .stats { display: flex; flex-direction: column; gap: 3cqh; margin-top: 4cqh; padding-top: 3cqh; border-top: 1px solid var(--border); }
-  .quote { font-size: 2.5cqw; font-weight: 700; line-height: 1.6; margin-top: 4cqh; padding-top: 3cqh; border-top: 1px solid var(--border); }
-  .quote .by { display: block; font-size: 1.8cqw; color: var(--ink-3); font-weight: 400; margin-top: 1.2cqh; }
-
-  figure.media { min-width: 0; display: flex; flex-direction: column; }
-  figure.media img, figure.media video {
-    width: 100%; max-height: 60cqh; object-fit: contain;
-    border: 1px solid var(--border); border-radius: var(--radius); background: var(--paper-dim);
-  }
-  figure.media figcaption { margin-top: 1.2cqh; font-family: var(--font-mono); font-size: 1.5cqw; color: var(--ink-3); }
-
-  /* 信息密度低的页整体放大(AWS-TIER0 的 .roomy) */
-  .roomy h3 { font-size: 3.6cqw; }
-  .roomy p, .roomy li { font-size: 2.7cqw; line-height: 1.75; }
-  .roomy li { margin-bottom: 2.6cqh; }
-  .roomy .lead { font-size: 3.1cqw; }
-  .roomy .metric { font-size: 5.6cqw; }
-
-  /* ── 分步揭示:给元素加 .frag,按 → 依次浮现 ──
-     只动 opacity:元素始终占位,翻步不跳版,也不会扰乱 auto-fit 的测量。 */
-  .frag { opacity: 0; transition: opacity .4s ease; }
-  .frag.on { opacity: 1; }
-
-  /* 深底页 —— 封面 / 分章 / 收尾 */
-  .slide.dark { background: var(--ink); color: #fff; }
-  .slide.dark .muted, .slide.dark .lead { color: #B7BCC3; }
-  .slide.dark .small, .slide.dark .source { color: #7E848C; }
-  .slide.dark .hl, .slide.dark .metric { color: var(--lime); }
-  .slide.dark .eyebrow { background: rgba(178,237,29,.14); color: var(--lime); }
-  .slide.dark .card { background: rgba(255,255,255,.04); border-color: #2A313A; }
-  .slide.dark li::marker { color: var(--lime); }
-
-  /* ── HUD 翻页条 ── */
-  .hud {
-    position: fixed; left: 50%; bottom: max(14px, 2vh); transform: translateX(-50%);
-    display: flex; align-items: center; gap: 12px;
-    background: rgba(255,255,255,.92); backdrop-filter: blur(8px);
-    border: 1px solid var(--border); border-radius: 999px;
-    padding: 7px 11px; z-index: 100; font-family: var(--font-mono);
-    box-shadow: 0 2px 10px rgba(5,11,20,.12);
-    opacity: .35; transition: opacity .2s;
-  }
-  .hud:hover, .hud:focus-within { opacity: 1; }
-  .hud button { background: none; border: 0; cursor: pointer; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; color: var(--ink); }
-  .hud button:hover { background: var(--green-tint); }
-  .hud button:disabled { color: var(--ink-3); cursor: default; }
-  .hud .page-num { font-size: 12px; color: var(--ink-2); min-width: 52px; text-align: center; }
-  .hud .track { width: 110px; height: 4px; background: var(--green-tint); border-radius: 2px; overflow: hidden; }
-  .hud .fill { height: 100%; width: 0; background: var(--deep-green); transition: width .25s; }
-
-  /* ══════════ 换主题 ══════════
-     默认是 Tier0 绿(「henkel总体」)。「AWS-TIER0」用的是 SUPCON 炫彩渐变:
-     只改下面这一段,其余 token 不动。
-       :root { --accent: #0057E3; }
-       .hl, .metric {
-         background: linear-gradient(100deg,#00B3FF 0%,#0057E3 36%,#5A2BE0 70%,#C71E8E 100%);
-         -webkit-background-clip: text; background-clip: text;
-         -webkit-text-fill-color: transparent; color: transparent;
-       }
-     ════════════════════════════ */
+/* mercydeck · factory-software baseline
+   Fixed 1600 × 900 composition; fit the stage, never shrink overflowing content.
+   Fonts are system fallbacks. For exact metrics, embed licensed IBM Plex Sans SC
+   / IBM Plex Mono WOFF2 as data URLs or bundle them under assets/ with @font-face.
+   Do not load fonts, scripts, or images from a CDN. */
+:root {
+  --paper: #fff;
+  --ink: #050B14;
+  --muted: #73777D;
+  --accent: #B2ED1D;
+  --accent-text: #73B200;
+  --type-display: 128px;
+  --type-title: 80px;
+  --type-body: 48px;
+  --sans: "IBM Plex Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", Menlo, Consolas, monospace;
+  --ease: cubic-bezier(.22, 1, .36, 1);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+body { background: #e9e9e7; color: var(--ink); font: 400 var(--type-body)/1.2 var(--sans); -webkit-font-smoothing: antialiased; }
+h1, h2, h3, p, figure, dl, dd { margin: 0; font-weight: 400; }
+strong { font-weight: 400; }
+a { color: inherit; }
+button, a, video { touch-action: manipulation; }
+a:focus-visible, button:focus-visible, video:focus-visible { outline: 3px solid var(--accent-text); outline-offset: 4px; }
+#viewport { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+#screen { position: relative; flex: none; width: 1600px; height: 900px; overflow: hidden; background: var(--paper); }
+#deck { position: absolute; inset: 0; width: 1600px; height: 900px; transform-origin: top left; }
+.slide { position: absolute; inset: 0; width: 1600px; height: 900px; display: none; overflow: hidden; background: var(--paper); }
+.slide.active { display: block; }
+.canvas-card { position: relative; width: 100%; height: 100%; padding: 80px; }
+.title { font-size: var(--type-title); line-height: 1.12; letter-spacing: -.045em; }
+.display { font-size: var(--type-display); line-height: 1.12; letter-spacing: -.045em; }
+.body-text { font-size: var(--type-body); line-height: 1.2; letter-spacing: -.025em; }
+.signal { color: var(--accent-text); }
+.mark { background: var(--accent); color: var(--ink); padding: 0 .08em; }
+.muted { color: var(--muted); }
+.brand { position: absolute; left: 80px; top: 80px; font-size: var(--type-body); letter-spacing: -.035em; }
+.cover-title { position: absolute; left: 80px; right: 80px; top: 320px; }
+.speaker { position: absolute; left: 80px; top: 512px; display: flex; flex-direction: column; gap: 12px; }
+.statement { position: absolute; left: 80px; right: 80px; top: 320px; }
+.statement .body-text { margin-top: 48px; max-width: 1240px; }
+.terms { position: absolute; left: 80px; right: 80px; top: 320px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 48px; }
+.terms dt { font-size: var(--type-display); line-height: 1.1; letter-spacing: -.065em; }
+.terms dd { margin-top: 40px; font-size: var(--type-body); line-height: 1.2; letter-spacing: -.035em; }
+/* All text and states exist in the source DOM. Step changes only set attributes. */
+.reveal { opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(14px); transition: opacity 280ms ease, transform 500ms var(--ease), visibility 0s 500ms; }
+.reveal.is-current { opacity: 1; visibility: visible; pointer-events: auto; transform: none; transition-delay: 0s; }
+.focus-scene { position: absolute; left: 80px; top: 250px; width: 1440px; height: 480px; transform-origin: 720px 240px; transition: transform 1000ms var(--ease); }
+.focus-scene svg { display: block; width: 100%; height: 100%; }
+.focus-labels { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(3, 1fr); align-items: center; text-align: center; }
+.focus-labels p { font-size: var(--type-body); }
+.scene-context { opacity: 1; transition: opacity 360ms ease; }
+.scene-target { fill: #F3F4F1; transition: fill 360ms ease; }
+.focus-slide[data-step="1"] .focus-scene { transform: scale(1.75); }
+.focus-slide[data-step="1"] .scene-context { opacity: .12; }
+.focus-slide[data-step="1"] .focus-labels .scene-context { opacity: 0; visibility: hidden; }
+.focus-slide[data-step="1"] .scene-target { fill: #D4F58C; }
+.focus-caption { position: absolute; left: 80px; bottom: 80px; }
+.media-stage { position: absolute; inset: 80px; overflow: hidden; background: #F3F4F1; }
+.video-placeholder { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; gap: 48px; padding: 80px; }
+.demo-video { display: none; width: 100%; height: 100%; object-fit: contain; background: #F3F4F1; }
+.media-stage.has-video .demo-video { display: block; }
+.media-stage.has-video .video-placeholder { display: none; }
+.dual-video-grid { position: absolute; left: 80px; right: 80px; top: 286px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; }
+.video-slot-title { margin-bottom: 28px; }
+.dual-video-grid .media-stage { position: relative; inset: auto; width: 100%; aspect-ratio: 16 / 9; }
+.dual-video-grid .video-placeholder { padding: 48px; gap: 0; }
+.dual-video-grid .demo-video { position: absolute; inset: 0; }
+.status-live { position: fixed; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+/* No always-on HUD. The host may inject its own touch navigation. */
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
+@media print {
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { height: auto; overflow: visible; background: #fff; }
+  #viewport, #screen, #deck { position: static; display: block; width: 1600px !important; height: auto !important; transform: none !important; overflow: visible; }
+  .slide { position: relative; display: block !important; break-after: page; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .slide:last-child { break-after: auto; }
+  .reveal { opacity: 1; visibility: visible; transform: none; }
+  /* Print the text state for overlapping single-video slides. */
+  .single-video > .media-stage { display: none; }
+  .focus-scene { transform: none !important; }
+  .scene-context { opacity: 1 !important; }
+  .focus-labels .scene-context { visibility: visible !important; }
+}
 </style>
 </head>
 <body>
-<div id="stage">
+<main id="viewport" aria-label="演示文稿">
+  <div id="screen"><div id="deck" tabindex="-1">
 
-  <!-- ═══ 1. 封面(深底) ═══ -->
-  <section class="slide dark active">
-    <div class="center">
-      <div class="eyebrow">COMPANY · TOPIC</div>
-      <h1>Deck 主标题<br><span class="hl">重点词</span>放这里</h1>
-      <p class="lead mt">一句话副标题:这份 deck 讲什么、给谁看。</p>
-      <p class="source mt2">PRESENTER · 2026-01</p>
-    </div>
-  </section>
+    <!-- 1 · White cover. Replace this placeholder brand with a supplied local logo. -->
+    <section class="slide cover active" data-title="封面" data-step="0" data-max-step="0" aria-label="第 1 页，封面">
+      <p class="brand">品牌名称</p>
+      <h1 class="cover-title display">一句话讲清核心主题</h1>
+      <div class="speaker body-text"><p>演讲者姓名</p><p>身份或组织</p></div>
+    </section>
 
-  <!-- ═══ 2. 论断页:一句话独占一页(AWS-TIER0 的招牌页型) ═══ -->
-  <section class="slide roomy">
-    <div class="center">
-      <h2 class="page-title">把结论直接说出来,<span class="hl">别铺垫</span>。</h2>
-      <p class="lead mt">底下最多一两行解释。留白就是重点。</p>
-    </div>
-  </section>
-
-  <!-- ═══ 3. 要点页 ═══ -->
-  <section class="slide">
-    <div class="eyebrow">SECTION · Sub-topic</div>
-    <h2 class="page-title">要点页标题</h2>
-    <div class="body">
-      <ul class="mt" style="max-width:72cqw">
-        <li><strong>要点一</strong>:一句话说清楚,别堆从句。</li>
-        <li><strong>要点二</strong>:数字和名词加 <span class="hl">高亮</span>。</li>
-        <li><strong>要点三</strong>:每页 3–5 条为上限。</li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- ═══ 4. 数字页:横向并排,字号编码量级 ═══ -->
-  <section class="slide">
-    <div class="eyebrow">RESULTS · 量化效果</div>
-    <h2 class="page-title">上线之后,账算得清</h2>
-    <div class="body">
-      <div class="row base">
-        <div class="col"><div class="big w1 hl">-60%</div><p class="mt muted">数据接入成本</p></div>
-        <div class="col"><div class="big w2">15<span class="num">→2min</span></div><p class="mt muted">故障响应时间</p></div>
-        <div class="col"><div class="big w3 hl">+8<span style="font-size:.5em">%</span></div><p class="mt muted">OEE 设备综合效率</p></div>
+    <!-- 2 · One assertion; one deliberate reveal, not a list of small bullets. -->
+    <section class="slide" data-title="核心论断" data-step="0" data-max-step="1" aria-label="第 2 页，核心论断">
+      <div class="statement">
+        <h2 class="display">让<span class="signal">核心判断</span><br>成为这一页的主角</h2>
+        <p class="body-text reveal" data-step-min="1">补充一句解释，让观众理解这个判断。</p>
       </div>
-      <p class="source mt2">DATA SOURCE · 项目复盘 2026-06</p>
-    </div>
-  </section>
+    </section>
 
-  <!-- ═══ 5. 左文右图 / 视频 ═══ -->
-  <section class="slide">
-    <div class="eyebrow">DEMO · Feature name</div>
-    <h2 class="page-title">演示:一句话说明看什么</h2>
-    <div class="body">
-      <div class="row media">
-        <div class="col">
-          <ul>
-            <li>说明第一点</li>
-            <li class="frag">→ 按一下才出现的第二点</li>
-          </ul>
+    <!-- 3 · Three terms: equal columns, large names, one-line explanations. -->
+    <section class="slide" data-title="三个术语" data-step="0" data-max-step="1" aria-label="第 3 页，三个术语">
+      <div class="canvas-card"><h2 class="title">三个关键词，建立共同语言</h2></div>
+      <dl class="terms">
+        <div><dt>术语一</dt><dd class="reveal" data-step-min="1">一句解释</dd></div>
+        <div><dt>术语二</dt><dd class="reveal" data-step-min="1">一句解释</dd></div>
+        <div><dt>术语三</dt><dd class="reveal" data-step-min="1">一句解释</dd></div>
+      </dl>
+    </section>
+
+    <!-- 4 · Original schematic, not a product screenshot. Labels stay editable HTML. -->
+    <section class="slide focus-slide" data-title="聚焦图解" data-step="0" data-max-step="1" aria-label="第 4 页，聚焦图解">
+      <div class="canvas-card"><h2 class="title">先看全貌，再看关键环节</h2></div>
+      <figure class="focus-scene" aria-label="三个相连环节的概念示意图">
+        <svg viewBox="0 0 1440 480" aria-hidden="true">
+          <g class="scene-context" fill="none" stroke="#C8CDCA" stroke-width="3">
+            <path d="M420 240H540M900 240H1020"/>
+            <path d="M504 222L528 240L504 258M984 222L1008 240L984 258"/>
+            <rect x="60" y="110" width="360" height="260" rx="8" fill="#F3F4F1" stroke="none"/>
+            <rect x="1020" y="110" width="360" height="260" rx="8" fill="#F3F4F1" stroke="none"/>
+          </g>
+          <rect class="scene-target" x="540" y="110" width="360" height="260" rx="8"/>
+          <path d="M624 324H816" stroke="#73B200" stroke-width="4"/>
+        </svg>
+        <div class="focus-labels"><p class="scene-context">起点</p><p>关键环节</p><p class="scene-context">结果</p></div>
+      </figure>
+      <p class="focus-caption body-text reveal" data-step-min="1">把注意力留给一个关键关系。</p>
+    </section>
+
+    <!-- 5 · Title → full media. Add src="videos/demo.mp4" only after adding the file.
+         Keep native controls, muted, playsinline and preload="metadata"; add loop only when needed.
+         An empty slot intentionally makes no media request. -->
+    <section class="slide single-video" data-title="单视频演示" data-step="0" data-max-step="1" aria-label="第 5 页，单视频演示">
+      <div class="canvas-card reveal" data-step-min="0" data-step-max="0"><h2 class="title">用演示回答一个问题</h2></div>
+      <div class="statement reveal" data-step-min="0" data-step-max="0"><p class="display">先说清楚<br>观众要看什么</p></div>
+      <figure class="media-stage reveal" data-step-min="1" aria-label="演示视频">
+        <div class="video-placeholder"><h3 class="title">演示视频</h3><p class="body-text muted">视频素材待补充</p></div>
+        <video class="demo-video" muted playsinline preload="metadata" controls aria-label="演示视频播放控件"></video>
+      </figure>
+    </section>
+
+    <!-- 6 · Compare two real recordings; neither slot requests a missing asset. -->
+    <section class="slide" data-title="双视频对比" data-step="0" data-max-step="0" aria-label="第 6 页，双视频对比">
+      <div class="canvas-card"><h2 class="title">让差异自己说话</h2></div>
+      <div class="dual-video-grid">
+        <div><h3 class="video-slot-title body-text">对比维度一</h3>
+          <figure class="media-stage" aria-label="第一段演示视频">
+            <div class="video-placeholder"><p class="body-text muted">视频素材待补充</p></div>
+            <video class="demo-video" muted playsinline preload="metadata" controls aria-label="第一段视频播放控件"></video>
+          </figure>
         </div>
-        <figure class="media col">
-          <video src="videos/demo.mp4" muted loop playsinline preload="metadata" controls></video>
-          <figcaption>视频进页自动播,翻走即停</figcaption>
-        </figure>
+        <div><h3 class="video-slot-title body-text">对比维度二</h3>
+          <figure class="media-stage" aria-label="第二段演示视频">
+            <div class="video-placeholder"><p class="body-text muted">视频素材待补充</p></div>
+            <video class="demo-video" muted playsinline preload="metadata" controls aria-label="第二段视频播放控件"></video>
+          </figure>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ═══ 6. 收尾(深底) ═══ -->
-  <section class="slide dark">
-    <div class="center">
-      <h1>收尾金句,<span class="hl">一句话</span>。</h1>
-      <p class="lead mt">下一步行动 / 联系方式。</p>
-    </div>
-  </section>
+    <!-- 7 · Quiet white ending; a real, supplied call to action can replace the last line. -->
+    <section class="slide" data-title="收尾" data-step="0" data-max-step="0" aria-label="第 7 页，收尾">
+      <p class="brand">品牌名称</p>
+      <div class="statement"><h2 class="display">记住这<span class="signal">一个判断</span></h2><p class="body-text">一个明确、可执行的下一步。</p></div>
+    </section>
 
-</div>
-
-<div class="hud">
-  <button id="prevBtn" title="上一页 (←)"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 6l-6 6 6 6"/></svg></button>
-  <div class="page-num"><span id="curr">1</span> / <span id="total">?</span></div>
-  <div class="track"><div class="fill" id="progFill"></div></div>
-  <button id="nextBtn" title="下一页 (→)"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6l6 6-6 6"/></svg></button>
-</div>
-
+  </div></div>
+</main>
+<p id="live-status" class="status-live" role="status" aria-live="polite"></p>
 <script>
-(function(){
-  const slides = Array.from(document.querySelectorAll('.slide'));
-  const total = slides.length; let idx = 0;
-  const curr=document.getElementById('curr'), tot=document.getElementById('total'),
-        fill=document.getElementById('progFill'),
-        prevBtn=document.getElementById('prevBtn'), nextBtn=document.getElementById('nextBtn');
-  tot.textContent = total;
+(() => {
+  'use strict';
+  const viewport = document.getElementById('viewport');
+  const screen = document.getElementById('screen');
+  const deck = document.getElementById('deck');
+  const slides = [...deck.querySelectorAll(':scope > .slide')];
+  const videos = [...deck.querySelectorAll('video')];
+  const status = document.getElementById('live-status');
+  const interactive = 'a,button,video,audio,input,textarea,select,label,summary,[role="button"],[contenteditable]:not([contenteditable="false"]),[data-no-nav]';
+  let page = 0, clickTimer = 0, touchStart = null, suppressClickUntil = 0;
+  const maxStep = slide => Math.max(0, Number(slide.dataset.maxStep) || 0);
+  const step = () => Number(slides[page].dataset.step) || 0;
+  const editing = () => !!document.querySelector('style[data-deckedit]');
+  const isInteractive = target => target instanceof Element && !!target.closest(interactive);
+  const hasSource = video => !!(video.getAttribute('src')?.trim() || video.querySelector('source[src]:not([src=""])'));
 
-  // ── auto-fit:把每页内容包一层,超出舞台就整体缩小。
-  //    这样"塞太多"只会变小,不会被 overflow:hidden 裁掉。
-  //    (设计上仍应放得下;缩放触发 = 该拆页的信号。)
-  slides.forEach(s=>{
-    const w = document.createElement('div'); w.className = 'fitwrap';
-    while (s.firstChild) w.appendChild(s.firstChild);
-    s.appendChild(w);
-  });
-  function fit(s){
-    const w = s.firstElementChild;
-    if (!w || !w.classList.contains('fitwrap')) return;
-    w.style.transform = 'none';
-    // 垂直居中的 .body 会向上下双向溢出,而 scrollHeight 只看得到向下那半。
-    // 量的时候先顶对齐,算出的比例才诚实。
-    const flexers = Array.from(w.querySelectorAll('.body, .center'));
-    const prev = flexers.map(f => f.style.justifyContent);
-    flexers.forEach(f => f.style.justifyContent = 'flex-start');
-    const cs = getComputedStyle(s);
-    const availH = s.clientHeight - parseFloat(cs.paddingTop)  - parseFloat(cs.paddingBottom);
-    const availW = s.clientWidth  - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-    const k = Math.min(availH / w.scrollHeight, availW / w.scrollWidth);
-    if (k < 0.995) w.style.transform = 'scale(' + k.toFixed(4) + ')';   // 超了:顶对齐 + 缩放
-    else flexers.forEach((f, i) => f.style.justifyContent = prev[i]);   // 放得下:恢复居中
+  function fit() {
+    const scale = Math.max(.01, Math.min(viewport.clientWidth / 1600, viewport.clientHeight / 900));
+    screen.style.width = `${1600 * scale}px`;
+    screen.style.height = `${900 * scale}px`;
+    deck.style.transform = `scale(${scale})`;
   }
-  function fitActive(){ requestAnimationFrame(()=>fit(slides[idx])); }
-
-  const fragsOf = s => Array.from(s.querySelectorAll('.frag'));
-
-  function show(n, revealAll){
-    idx = Math.max(0, Math.min(total-1, n));
-    slides.forEach((s,i)=>{
-      s.classList.toggle('active', i===idx);
-      if (i!==idx) fragsOf(s).forEach(f=>f.classList.remove('on'));
-      const v = s.querySelector('video');
-      if (v) { if (i===idx) { v.currentTime = 0; v.play().catch(()=>{}); } else v.pause(); }
+  function visibleMedia(video) {
+    if (document.hidden || !video.closest('.slide')?.classList.contains('active')) return false;
+    for (let parent = video.parentElement; parent && parent !== deck; parent = parent.parentElement) {
+      if (parent.classList.contains('reveal') && !parent.classList.contains('is-current')) return false;
+    }
+    return hasSource(video) && !video.closest('.media-stage')?.classList.contains('media-error');
+  }
+  function syncMedia(restart = false) {
+    videos.forEach(video => {
+      const slot = video.closest('.media-stage');
+      slot?.classList.toggle('has-video', hasSource(video) && !slot.classList.contains('media-error'));
+      if (!visibleMedia(video)) { video.pause(); return; }
+      if (restart) { try { video.currentTime = 0; } catch { /* Wait for metadata if necessary. */ } }
+      const playback = video.play();
+      playback?.catch(error => {
+        if (error.name !== 'AbortError' && visibleMedia(video)) status.textContent = '请使用视频原生控件开始播放。';
+      });
     });
-    if (revealAll) fragsOf(slides[idx]).forEach(f=>f.classList.add('on'));
-    curr.textContent = idx+1;
-    fill.style.width = ((idx+1)/total*100)+'%';
-    prevBtn.disabled = idx===0; nextBtn.disabled = idx===total-1;
-    location.hash = idx+1;
-    fitActive();
   }
-  // 分步页:→ 先把本页的 .frag 一个个点亮,点完才翻页
-  function next(){
-    const hidden = fragsOf(slides[idx]).find(f=>!f.classList.contains('on'));
-    if (hidden) { hidden.classList.add('on'); return; }
-    show(idx+1);
+  function renderStep(slide, value) {
+    const current = Math.max(0, Math.min(maxStep(slide), value));
+    slide.dataset.step = String(current);
+    slide.querySelectorAll('.reveal').forEach(element => {
+      const from = Number(element.dataset.stepMin) || 0;
+      const until = element.hasAttribute('data-step-max') ? Number(element.dataset.stepMax) : Infinity;
+      const visible = current >= from && current <= until;
+      element.classList.toggle('is-current', visible);
+      element.setAttribute('aria-hidden', String(!visible));
+      element.inert = !visible;
+    });
   }
-  function prev(){
-    const shown = fragsOf(slides[idx]).slice().reverse().find(f=>f.classList.contains('on'));
-    if (shown) { shown.classList.remove('on'); return; }
-    show(idx-1, true);              // 往回翻:上一页的分步内容直接全亮
+  function announce() {
+    status.textContent = `第 ${page + 1} 页，共 ${slides.length} 页，${slides[page].dataset.title}，第 ${step() + 1} 步。`;
   }
-  prevBtn.addEventListener('click', prev);
-  nextBtn.addEventListener('click', next);
-  document.addEventListener('keydown', e=>{
-    if (e.key==='ArrowRight'||e.key==='PageDown'||e.key===' ') { next(); e.preventDefault(); }
-    else if (e.key==='ArrowLeft'||e.key==='PageUp') { prev(); e.preventDefault(); }
-    else if (e.key==='Home') show(0);
-    else if (e.key==='End') show(total-1);
-  });
-  // 点击分区:右 40% 下一步,左 15% 上一步(避开可交互元素)
-  document.getElementById('stage').addEventListener('click', e=>{
-    if (e.target.closest('video,button,a,input,[contenteditable]')) return;
-    const x = e.clientX / innerWidth;
-    if (x > 0.6) next(); else if (x < 0.15) prev();
-  });
-  // 手机滑动
-  let x0=null;
-  addEventListener('touchstart', e=>{ x0=e.touches[0].clientX; }, {passive:true});
-  addEventListener('touchend', e=>{
-    if (x0===null) return;
-    const dx=e.changedTouches[0].clientX-x0; x0=null;
-    if (Math.abs(dx)>45) (dx<0?next:prev)();
-  }, {passive:true});
+  function go(index, position = 0) {
+    clearTimeout(clickTimer);
+    videos.forEach(video => video.pause());
+    page = Math.max(0, Math.min(slides.length - 1, Math.trunc(index)));
+    slides.forEach((slide, i) => {
+      const active = i === page;
+      slide.classList.toggle('active', active);
+      slide.setAttribute('aria-hidden', String(!active));
+      slide.inert = !active;
+    });
+    renderStep(slides[page], position);
+    // The editor loads srcdoc under a <base>; its about: URL cannot be replaced.
+    if (location.protocol !== 'about:') {
+      try { const url = new URL(location.href); url.hash = String(page + 1); history.replaceState(null, '', url); }
+      catch (error) { if (error.name !== 'SecurityError') throw error; }
+    }
+    announce(); fit(); syncMedia(true);
+  }
+  function advance(direction) {
+    clearTimeout(clickTimer);
+    if (direction > 0) {
+      if (step() < maxStep(slides[page])) renderStep(slides[page], step() + 1);
+      else if (page < slides.length - 1) { go(page + 1); return; }
+    } else {
+      if (step() > 0) renderStep(slides[page], step() - 1);
+      else if (page > 0) { go(page - 1, maxStep(slides[page - 1])); return; }
+    }
+    announce(); syncMedia(true);
+  }
 
-  addEventListener('resize', fitActive);
-  addEventListener('load', fitActive);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitActive);
-
-  const h = parseInt(location.hash.slice(1),10);
-  show(h>=1&&h<=total ? h-1 : 0);
+  // The host's #__deck-navbtns and editor buttons dispatch synthetic keys on body.
+  // Handle those normally; preventDefault signals that the deck consumed the key.
+  document.addEventListener('keydown', event => {
+    if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey || event.repeat || isInteractive(event.target)) return;
+    if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(event.key)) { event.preventDefault(); advance(1); }
+    else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(event.key)) { event.preventDefault(); advance(-1); }
+    else if (event.key === 'Home') { event.preventDefault(); go(0); }
+    else if (event.key === 'End') { event.preventDefault(); go(slides.length - 1); }
+    else if (event.key.toLowerCase() === 'r') { event.preventDefault(); renderStep(slides[page], 0); announce(); syncMedia(true); }
+  });
+  // Click blank stage edges: left 15% back, right 40% forward. Delay single-click
+  // navigation so a double click can be used by an editor without changing pages.
+  deck.addEventListener('click', event => {
+    clearTimeout(clickTimer);
+    if (event.defaultPrevented || event.detail > 1 || editing() || isInteractive(event.target) || performance.now() < suppressClickUntil) return;
+    if (getSelection()?.toString().trim()) return;
+    const bounds = deck.getBoundingClientRect();
+    const x = (event.clientX - bounds.left) / bounds.width;
+    const direction = x < .15 ? -1 : x > .6 ? 1 : 0;
+    if (direction) clickTimer = setTimeout(() => { if (!editing() && !getSelection()?.toString().trim()) advance(direction); }, 300);
+  });
+  deck.addEventListener('dblclick', () => clearTimeout(clickTimer));
+  deck.addEventListener('touchstart', event => {
+    touchStart = null;
+    if (editing() || isInteractive(event.target) || event.touches.length !== 1) return;
+    clearTimeout(clickTimer);
+    touchStart = { x: event.touches[0].clientX, y: event.touches[0].clientY };
+  }, { passive: true });
+  deck.addEventListener('touchend', event => {
+    if (!touchStart || !event.changedTouches.length) return;
+    const dx = event.changedTouches[0].clientX - touchStart.x;
+    const dy = event.changedTouches[0].clientY - touchStart.y;
+    touchStart = null;
+    if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      suppressClickUntil = performance.now() + 700;
+      if (!editing()) advance(dx < 0 ? 1 : -1);
+    }
+  }, { passive: true });
+  deck.addEventListener('touchcancel', () => { touchStart = null; });
+  videos.forEach(video => {
+    // The editor saves live DOM. A previous load error is not authored content.
+    video.closest('.media-stage')?.classList.remove('media-error');
+    video.addEventListener('error', () => {
+      video.closest('.media-stage')?.classList.add('media-error');
+      status.textContent = '视频无法播放，请检查本地媒体文件。';
+      syncMedia();
+    });
+    video.addEventListener('loadedmetadata', () => {
+      video.closest('.media-stage')?.classList.remove('media-error');
+      syncMedia();
+    });
+  });
+  document.addEventListener('visibilitychange', () => syncMedia());
+  window.addEventListener('resize', fit);
+  document.addEventListener('fullscreenchange', fit);
+  window.addEventListener('hashchange', () => go((Number(location.hash.slice(1)) || 1) - 1));
+  new ResizeObserver(fit).observe(viewport);
+  document.fonts?.ready.then(fit);
+  // A saved live DOM may contain transient step/classes: reset every slide first.
+  slides.forEach(slide => renderStep(slide, 0));
+  go((Number(location.hash.slice(1)) || 1) - 1);
 })();
 </script>
 </body>

@@ -4,7 +4,7 @@
     {
       "id": 0,
       "prompt": "帮我做一个 HTML 演讲 deck，讲我们的新产品 Tier0 Edge Gateway（工业边缘网关），给工厂客户的技术负责人看，中文，8 页左右：封面、行业痛点、产品定位、三个核心能力（协议接入 200+ / 边缘计算低延迟 / 云边协同）、一个部署案例（山东某汽车零部件厂，接入 1200 点位，2 周上线）、量化效果（数据接入成本 -60%，故障响应 15min→2min，OEE +8%）、收尾。产出一个可以直接浏览器打开的文件夹。",
-      "expected_output": "A self-contained deck folder with index.html in mercy style: 16:9 CSS stage, cqw typography, Tier0 tokens (lime/deep-green), eyebrow+accent-line+title per slide, dark cover/closing, keyboard/click/touch nav, no external CDN, lowercase asset paths.",
+      "expected_output": "A self-contained HTML deck in factory-software style: white, ink-black, restrained green, regular-weight large type, generous whitespace, a uniformly scaled 16:9 stage, static editable text and working keyboard/click/touch navigation. Preserve all supplied facts without inheriting the reference deck’s business claims or fixed page sequence.",
       "files": [],
       "assertions": [
         {
@@ -16,32 +16,32 @@
           "text": "No external CDN/web-font links (no fonts.googleapis, cdn., unpkg, jsdelivr, external http img/script) — fully self-contained"
         },
         {
-          "id": "container_type",
-          "text": "Typography uses container units (cqw/cqh); headings are NOT sized in px"
+          "id": "coherent_stage",
+          "text": "Desktop and portrait phone retain the same 16:9 composition through uniform scaling; long text stays within the stage without tiny per-slide shrink-to-fit."
         },
         {
-          "id": "eyebrow_pattern",
-          "text": "Content slides use eyebrow + accent-line + title pattern (class=\"eyebrow\" and class=\"accent-line\" present)"
+          "id": "clear_visual_hierarchy",
+          "text": "Default slides use a clear large-type hierarchy and roughly 1–3 short points per visible state; no automatic eyebrow badges, decorative rules, or dense cards around ordinary text."
         },
         {
-          "id": "dark_cover_close",
-          "text": "At least 2 dark slides (.slide.dark) for cover and closing"
+          "id": "reference_style",
+          "text": "Default cover and closing use the reference’s white background, dark regular-weight type, sparse green emphasis and generous whitespace."
         },
         {
           "id": "nav_script",
           "text": "Nav script supports keyboard (ArrowRight), click zones, and touch swipe"
         },
         {
-          "id": "tier0_tokens",
-          "text": "Tier0 accent colors present: lime #B2ED1D and deep-green #73B200 (case-insensitive)"
+          "id": "restrained_accent",
+          "text": "Green distinguishes a few important words, relationships or active states; white and ink-black dominate rather than a page full of colored cards."
         },
         {
-          "id": "relative_lowercase_media",
-          "text": "All media src are relative lowercase-ASCII paths (no leading /, no CJK/spaces/uppercase filenames)"
+          "id": "self_contained_media",
+          "text": "Media and fonts are embedded or bundled with matching lowercase ASCII relative paths; no missing media requests or external loading dependencies. Outbound source/CTA links are allowed."
         },
         {
           "id": "renders_clean",
-          "text": "Opens at 390px width with zero JS console errors and no horizontal overflow"
+          "text": "At 1600x900, 1366x768 and 390x844, every slide and meaningful step is reachable without clipped/overlapping text, horizontal scrolling or JavaScript errors."
         },
         {
           "id": "slidecount8",
@@ -50,13 +50,25 @@
         {
           "id": "content_facts_0",
           "text": "Includes required facts: 200+ 协议接入, 1200 点位, 2 周上线, 数据成本 -60%, 故障 15min->2min, OEE +8%"
+        },
+        {
+          "id": "editable_states",
+          "text": "Changing a slide’s DOM text then advancing and returning preserves that text; inactive slides are not keyboard-focusable and double-click editing does not turn the page."
+        },
+        {
+          "id": "host_navigation",
+          "text": "Cancelable synthetic ArrowRight/ArrowLeft events dispatched on document.body advance/reverse exactly one state and are consumed. Video controls, links and inputs do not also turn slides."
+        },
+        {
+          "id": "motion_and_media",
+          "text": "Reduced motion preserves readable final states. Any video only plays in its visible state, pauses on departure/hidden tab, and offers controls if autoplay is blocked."
         }
       ]
     },
     {
       "id": 1,
       "prompt": "把下面这段介绍改成一个 6 页左右的 HTML 演讲 deck（中文，浏览器直接打开那种）：\n\nMercyOps 是我们内部的运维自动化平台。现状：工厂 IT 每天平均处理 40+ 工单，70% 是重复性操作（重启服务、清理磁盘、证书续期）。MercyOps 用剧本（playbook）把这些操作固化，出问题自动诊断自动执行，人只审批高风险动作。上线 3 个月：自动处理率 68%，平均恢复时间从 45 分钟降到 6 分钟，夜间告警人工介入次数 -82%。下一步：接入 LLM 做告警根因分析。",
-      "expected_output": "A 6-slide deck folder in mercy style summarizing the content: cover, status-quo pain, what it is, how it works, stat wall with the three numbers, next-step closing.",
+      "expected_output": "A self-contained HTML deck in factory-software style: white, ink-black, restrained green, regular-weight large type, generous whitespace, a uniformly scaled 16:9 stage, static editable text and working keyboard/click/touch navigation. Preserve all supplied facts without inheriting the reference deck’s business claims or fixed page sequence.",
       "files": [],
       "assertions": [
         {
@@ -68,32 +80,32 @@
           "text": "No external CDN/web-font links (no fonts.googleapis, cdn., unpkg, jsdelivr, external http img/script) — fully self-contained"
         },
         {
-          "id": "container_type",
-          "text": "Typography uses container units (cqw/cqh); headings are NOT sized in px"
+          "id": "coherent_stage",
+          "text": "Desktop and portrait phone retain the same 16:9 composition through uniform scaling; long text stays within the stage without tiny per-slide shrink-to-fit."
         },
         {
-          "id": "eyebrow_pattern",
-          "text": "Content slides use eyebrow + accent-line + title pattern (class=\"eyebrow\" and class=\"accent-line\" present)"
+          "id": "clear_visual_hierarchy",
+          "text": "Default slides use a clear large-type hierarchy and roughly 1–3 short points per visible state; no automatic eyebrow badges, decorative rules, or dense cards around ordinary text."
         },
         {
-          "id": "dark_cover_close",
-          "text": "At least 2 dark slides (.slide.dark) for cover and closing"
+          "id": "reference_style",
+          "text": "Default cover and closing use the reference’s white background, dark regular-weight type, sparse green emphasis and generous whitespace."
         },
         {
           "id": "nav_script",
           "text": "Nav script supports keyboard (ArrowRight), click zones, and touch swipe"
         },
         {
-          "id": "tier0_tokens",
-          "text": "Tier0 accent colors present: lime #B2ED1D and deep-green #73B200 (case-insensitive)"
+          "id": "restrained_accent",
+          "text": "Green distinguishes a few important words, relationships or active states; white and ink-black dominate rather than a page full of colored cards."
         },
         {
-          "id": "relative_lowercase_media",
-          "text": "All media src are relative lowercase-ASCII paths (no leading /, no CJK/spaces/uppercase filenames)"
+          "id": "self_contained_media",
+          "text": "Media and fonts are embedded or bundled with matching lowercase ASCII relative paths; no missing media requests or external loading dependencies. Outbound source/CTA links are allowed."
         },
         {
           "id": "renders_clean",
-          "text": "Opens at 390px width with zero JS console errors and no horizontal overflow"
+          "text": "At 1600x900, 1366x768 and 390x844, every slide and meaningful step is reachable without clipped/overlapping text, horizontal scrolling or JavaScript errors."
         },
         {
           "id": "slidecount6",
@@ -102,6 +114,54 @@
         {
           "id": "content_facts_1",
           "text": "Includes source facts: 剧本/playbook, 自动处理率 68%, 恢复 45->6 分钟, 夜间告警 -82%, 下一步 LLM 根因分析"
+        },
+        {
+          "id": "editable_states",
+          "text": "Changing a slide’s DOM text then advancing and returning preserves that text; inactive slides are not keyboard-focusable and double-click editing does not turn the page."
+        },
+        {
+          "id": "host_navigation",
+          "text": "Cancelable synthetic ArrowRight/ArrowLeft events dispatched on document.body advance/reverse exactly one state and are consumed. Video controls, links and inputs do not also turn slides."
+        },
+        {
+          "id": "motion_and_media",
+          "text": "Reduced motion preserves readable final states. Any video only plays in its visible state, pauses on departure/hidden tab, and offers controls if autoplay is blocked."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "把我已有的深蓝底、白字客户汇报 HTML deck 改两页：更新第二页结果为 35%，再新增一页写后续计划。保持原来的深蓝风格，不要改成 factory-software；只交付本地文件，不上传。",
+      "expected_output": "Only the requested content/page changes, preserving the existing dark-blue visual system and local destination. The default reference does not override the explicit user request.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "honor_style_override",
+          "text": "Preserves the existing dark-blue visual system rather than forcing white covers, fixed new-template coordinates or a full redesign."
+        },
+        {
+          "id": "honor_scope",
+          "text": "Updates the supplied result, adds the requested plan page and delivers local files; does not publish or alter other decks."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "参考 factory-software 做一个恰好 6 页的中文 HTML 产品演示 deck，给工厂技术负责人看。我只有一段本地演示视频，其他内容用静态文字和图解。需要能在 deckwebapp 双击改文字，保存后重开继续播放。只交付文件夹。",
+      "expected_output": "Exactly six slides with one supplied video, no copied double-video placeholders, editable static text and recoverable media state across saved-DOM reloads.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "exact_scope",
+          "text": "Exactly six slides; uses the one supplied video without inventing another recording or leaving unnecessary missing-video placeholders."
+        },
+        {
+          "id": "saved_text",
+          "text": "A DOM text edit survives step navigation and a saved HTML reload without being overwritten by initialization."
+        },
+        {
+          "id": "saved_media_recovery",
+          "text": "After a transient video failure, saving the live DOM and reopening with the media available restores video display/playback; runtime error classes cannot permanently suppress the media."
         }
       ]
     }

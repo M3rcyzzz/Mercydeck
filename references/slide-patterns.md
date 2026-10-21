@@ -1,221 +1,79 @@
-# mercydeck 页型配方
+# factory-software 的视觉与页型
 
-模板 `assets/template.html` 已含 6 个基础页型。本文件是扩展配方,**全部来自两份参照 deck**:
+主参考：[工厂软件工厂造](https://m3rcyzzz.club/factory-software/)。2026-10-21 核对线上画面及源码。复制同一 skill 的 `assets/template.html` 作为骨架；以下是设计选择，不是固定九页脚本。
 
-- **「henkel总体」**(`decks/tier0-uns/`)—— eyebrow、大数字 + 数据出处、案例页、合作方 logo 墙
-- **「AWS-TIER0」**(`decks/tier0-dx/`)—— 留白、论断页、`.roomy`、条形对比、结论链、分步揭示
+## 设计坐标与字体
 
-尺寸一律 cqw/cqh(容器单位),不要用 px 定字号。带 CSS 的配方,把 `<style>` 里的规则并进模板的 `<style>` 即可。
+| 项目 | 参考值与用途 |
+|---|---|
+| 舞台 | 1600×900；按 `min(可用宽/1600, 可用高/900)` 整体缩放，居中留边 |
+| 常规内边距 | 四周 80px；内容区宽 1440px |
+| 主论断 / 封面 | 128px，400，行高 1.12–1.16，字距约 −.045em |
+| 页标题 | 80px，400，行高 1.12；常规锚点 (80,80) |
+| 说明 / 术语释义 | 48px，400，行高约 1.2；字距 −.025 至 −.035em |
+| 产品图标 | 72×72px，标题间距 24px；使用真实图标或简洁线条图形 |
+| 色彩 | 白 `#FFF`、墨黑 `#050B14`、强调字 `#73B200`、亮绿 `#B2ED1D` |
+| 媒体 / 模块浅底 | `#F3F4F1` / `#F1F2EF`；次级字 `#73777D` |
+| 字体 | 原稿内嵌 IBM Plex Sans SC 与 IBM Plex Mono；系统字体是回退 |
 
-## 三条硬版式规则(先记住,再往下抄)
+固定设计坐标配合统一缩放，允许 px 字号；不要把 px、vw 和 cqw 混成各自缩放的布局。标题和正文之间有独立空间，正文通常从 y≈320 开始。短句可明确断行；长句先改写，不用全局 `white-space:nowrap` 掩盖溢出。
 
-1. `.row` 是 `.body` 的**子元素**,不要写 `class="body row"`(会把 `.body` 的垂直居中变成横向居中,版面必歪)。
-2. `.center` 只给**无 header 的深底页**(封面/分章/收尾);有 eyebrow + 标题的内容页,正文包进 `.body`。
-3. 大数字**横向并排**(`.row.base`),纵向堆三张大数字卡会顶破 16:9 舞台。auto-fit 会兜底缩放不裁切,但触发 = 该拆页。
+128/80/48 是层级参考，不是所有文字的最小值。来源、附注可更小，但不承载必须当场读懂的结论。投影远看是主要场景；手机保留完整 16:9 构图，不擅自改成长网页。
 
-## 目录
-- [Eyebrow 写法](#eyebrow-写法)
-- [论断页](#论断页)
-- [章节分隔页](#章节分隔页)
-- [三个大数字(stat wall)](#三个大数字stat-wall)
-- [条形对比页](#条形对比页)
-- [结论流程链](#结论流程链)
-- [对比页(旧 vs 新)](#对比页旧-vs-新)
-- [案例页](#案例页)
-- [分步揭示](#分步揭示)
-- [引用页](#引用页)
-- [全幅大图页](#全幅大图页)
-- [换主题色](#换主题色)
+## 白底封面与论断
 
-## Eyebrow 写法
+封面：真实标志放左上，约 224px 宽；主标题左侧 80px、上方约 320px，通常一行；讲者与身份约 y=512，48px 两行。为两行长标题重新安排讲者位置，不能机械沿用坐标造成覆盖。无品牌素材时留空或使用明确的文本署名，不伪造标志。
 
-henkel总体 的惯例:`大类 · 细分`,mono,英文大写(哪怕正文是中文):
+论断页：可有左上角产品名/线图标，主结论一两行放大；无需补一段解释填满余下空间。白底章节可采用品牌标志加一句定位。默认不加 eyebrow、边框、深色大底或渐变字。
 
-```
-CHALLENGE            DATA INTEGRATION      DEMO · UNS Agent
-RESULTS · 量化效果    DEPLOYMENT            MARKET LEADER · Domestic Standing
-```
+## 三个术语 / 三个短论断
 
-内容页以 eyebrow + page-title 开头。`accent-line` 是可选的 lime 短横——参照 deck 里定义了却几乎不用,别每页都加。
+三个术语在 1440px 内容区横向等分，间距约 48px；术语 128px，释义 48px，释义与术语约相距 40px。每项一个短名称与一行解释。
 
-## 论断页
+短论断可用三个纵向行，字号 80px、行间距约 64px；只在句子足够短时使用。普通叙述更适合一页一句；不要为了凑三项编造第三条。
 
-AWS-TIER0 的招牌:**把结论当标题,独占一页**,底下最多一两行。大量留白就是设计。
+## 产品定位 → 演示
 
-```html
-<section class="slide roomy">
-  <div class="center">
-    <h2 class="page-title">投入与回报,<span class="hl">不成正比</span>。</h2>
-    <p class="lead mt">"云、大、智、物、移"俱全的技术,最后做出来的,是一块看板。</p>
-  </div>
-</section>
-```
+第一幕：80px 产品标题 + 128px 一两行定位。下一幕：文字退出，视频成为主画面，常见为四周 80px 的媒体区，`object-fit:contain`。视频足够说明内容时不额外包卡片或图注。
 
-## 章节分隔页
+双视频只用于确有比较/并列关系的两段演示：1440px 内容区两列、间距 32px，各有 48px 短标题，画面保持 16:9。缺素材就显示明确静态占位，不请求不存在的文件。替换完素材后检查占位已隐藏。
 
-深底、只有一句话:
+原稿有双语自动过渡后停在中文；只在双语确实服务演讲时采用。正文两种语言都预置 DOM，切换显隐，不在动画里反复重写文字。
 
-```html
-<section class="slide dark">
-  <div class="center mid">
-    <p class="source" style="letter-spacing:.3em">PART 02</p>
-    <h1 class="mt">章节标题</h1>
-  </div>
-</section>
-```
+## 同一场景的分步聚焦
 
-## 三个大数字(stat wall)
+工厂、架构或流程先给完整场景；接着按论述顺序高亮局部，其余降饱和/透明度；需要看细节时才做镜头放大。图像始终是同一个空间关系，避免每一步换一张不相干的插图。
 
-量化效果页的标配。**横向并排,共享底部基线**(`.row.base`),字号本身编码量级——最重要的那个用 `.w3`。数据出处用 `.source` 挂在下面。
+叠加大字时以白色半透明遮罩弱化背景（原稿约 60% 白、5px 模糊），不支持背景模糊时用更不透明的白底回退。步骤回退应恢复图与文字状态，不残留高亮、播放或焦点。
 
-```html
-<section class="slide">
-  <div class="eyebrow">RESULTS · 量化效果</div>
-  <h2 class="page-title">上线之后,账算得清</h2>
-  <div class="body">
-    <div class="row base">
-      <div class="col"><div class="big w1 hl">-60%</div><p class="mt muted">数据接入成本</p></div>
-      <div class="col"><div class="big w2">15<span class="num">→2min</span></div><p class="mt muted">故障响应时间</p></div>
-      <div class="col"><div class="big w3 hl">+8<span style="font-size:.5em">%</span></div><p class="mt muted">OEE 设备综合效率</p></div>
-    </div>
-    <p class="source mt2">DATA SOURCE · 项目复盘 2026-06</p>
-  </div>
-</section>
-```
+不要复制原工厂的具体缩放/平移坐标；它们取决于原图的目标位置。以当前素材重新测量，避免裁掉主体。
 
-数字多于三个,或每个还要挂 2–3 条支撑要点 → 拆成两页。别硬塞。
+## 能力全景 Bento（按需）
 
-## 条形对比页
+只用于表达一个产品由多个能力组成。原稿使用 40px 外围、20px 间隙、20px 圆角；中央核心更大，两侧/底部模块大小不同。每块主要是一个标签和一幅图，最多一句解释；不堆列表。基础为浅灰白，重点模块可转浅绿，其余弱化。
 
-AWS-TIER0 的 `.barrow`:轴标题降为小号灰色 overline,不与数据抢戏;强调项用主色填充。
+可分三幕：整体组成 → 突出某一组合 → 解释与现实工作的对应关系。不要固定六块、固定产品名、复制价格或生造能力。若各项只是平级文字，用开放式排版更合适。
 
-```html
-<style>
-  .axis { font-size:1.9cqw; font-weight:700; letter-spacing:.15em; color:var(--ink-3); margin-bottom:.6cqh }
-  .barrow { display:flex; align-items:center; gap:2cqw; margin-top:1.8cqh }
-  .barlabel { flex:0 0 11cqw; font-size:2.1cqw; color:var(--ink-2) }
-  .barlabel strong { color:var(--ink) }
-  .bartrack { flex:1; background:#F0F0F0; height:3.8cqh }
-  .barfill { background:#B9B9B9; height:100%; width:var(--w) }
-  .barfill.on { background:var(--accent) }
-  .barval { flex:0 0 14cqw; font-size:2.1cqw; font-weight:700; font-variant-numeric:tabular-nums }
-</style>
-<div class="body">
-  <p class="axis">交付周期</p>
-  <div class="barrow"><div class="barlabel">传统方式</div>
-    <div class="bartrack"><div class="barfill" style="--w:100%"></div></div><div class="barval">12 周</div></div>
-  <div class="barrow"><div class="barlabel"><strong>Tier0</strong></div>
-    <div class="bartrack"><div class="barfill on" style="--w:17%"></div></div><div class="barval hl">2 周</div></div>
-</div>
-```
+应用截图墙是原演讲特定效果：确有丰富应用素材时才用。背景轻移不能抢过主线；覆盖视频、离页、隐藏标签页或 reduced motion 时暂停。Bento 和截图墙按内容另行构建，起始模板不包含这两种专用组件。
 
-## 结论流程链
+## 收尾与补充页型
 
-AWS-TIER0 末页的 `.chain`:主词大、垂落小注、运算符退后。不要为它引入图片。
+收尾可回到开场主视觉，附一句主张与真实行动入口。链接/二维码由当前任务确定；不继承原稿注册页、价格、姓名或产品承诺。没有 CTA 需求时，一句结论就够。
 
-```html
-<style>
-  .chain { display:flex; align-items:flex-start; justify-content:center; gap:2.5cqw; margin-top:6cqh }
-  .chainitem { display:flex; flex-direction:column; align-items:center; text-align:center }
-  .chainmain { font-size:2.9cqw; font-weight:700; line-height:1.3 }
-  .chainsub { font-size:1.7cqw; color:var(--ink-3); margin-top:.8cqh }
-  .chainop { font-size:2.6cqw; color:#C5C5C5; line-height:1.45 }
-</style>
-<div class="chain">
-  <div class="chainitem"><div class="chainmain">Agent</div><div class="chainsub">会用工具的模型</div></div>
-  <div class="chainop">×</div>
-  <div class="chainitem"><div class="chainmain">Skill</div><div class="chainsub">把手艺写进提示</div></div>
-  <div class="chainop">→</div>
-  <div class="chainitem"><div class="chainmain hl">TIER0</div><div class="chainsub">现场可交付</div></div>
-</div>
-```
+原参考没有常规统计图表。需要数据或案例时可以保留旧 deck 的有效做法，但使用新的白底、常规字重和字号层级：
 
-## 对比页(旧 vs 新)
+- 数字：1–3 个关键数字横向并列，标签与来源分清；重要性可用大小表达，但数字的视觉大小不能冒充数值比例。
+- 条形比较：相同基线和可比尺度，灰色对照、绿色重点，标出单位；不能用任意条长夸大差异。
+- 案例：一个结果标题、一幅清晰证据、必要的简短背景；来源与限制放注释或讲稿。
 
-左右两卡,旧的灰、新的 `key` 高亮:
+旧模板的 `.body/.row/.center`、每页 eyebrow、暗底章节、`.roomy` 与渐变色不是新模板合同。用户明确要求旧风格时可以采用，不与当前模板的坐标体系混用。
 
-```html
-<div class="body">
-  <div class="row">
-    <div class="col card"><h3 class="muted">传统方式</h3><ul class="mt"><li class="muted">痛点…</li></ul></div>
-    <div class="col card key"><h3 class="hl">mercy 方式</h3><ul class="mt"><li>优势…</li></ul></div>
-  </div>
-</div>
-```
+## 动效的边界
 
-## 案例页
+模板的状态写法：每页使用 `.slide`、`data-title`、`data-step="0"` 与 `data-max-step`；后者是最后一步编号，不是总步数。需显隐的块用 `.reveal` 和 `data-step-min`，仅在特定区间显示时再加 `data-step-max`。同一范围可包含多个元素，前进一次切换整幕，不等于每个元素各按一次。增删步骤时同步最大编号，避免无法到达的内容或空白步骤。
 
-henkel总体 的惯例(Henkel / Aramco / SMT 页):eyebrow 写行业 + 场景,标题写 `客户 · 一句话成果`,左窄右宽——左边 3 条要点,右边截图。
+媒体放 `.media-stage`，子元素为静态占位和 `video.demo-video`；先准备文件，再加相对 `src`。`.has-video` 由脚本更新。主文字保留 HTML；示意图 SVG 不承载需要编辑的正文。模板内 `R` 重置当前页，`Home` / `End` 到首尾；空白区域左侧 15% 后退、右侧 40% 前进，中部不翻页。
 
-```html
-<section class="slide">
-  <div class="eyebrow">WAREHOUSE MANAGEMENT · CUSTOM WMS</div>
-  <h2 class="page-title">Henkel · 两周上线定制 WMS</h2>
-  <div class="body">
-    <div class="row media">
-      <div class="col" style="flex:0 0 30cqw">
-        <ul><li>背景一句</li><li>做了什么</li><li><span class="hl">量化结果</span></li></ul>
-      </div>
-      <figure class="media col">
-        <img src="assets/henkel-wms-dashboard.png" alt="">
-        <figcaption>上线后的 WMS 看板</figcaption>
-      </figure>
-    </div>
-  </div>
-</section>
-```
+默认入场只需 200–500ms 淡入/小位移；需要交代空间关系时可用约 800–1000ms 聚焦，缓动参考 `cubic-bezier(.22,1,.36,1)`。每次动作有叙事目的、结束状态稳定。不要默认逐字打字、循环发光、乱飞卡片或整页不停漂移。
 
-## 分步揭示
-
-模板脚本原生支持:给元素加 `.frag`,→ 依次点亮,点完才翻页;往回翻自动全亮。只动 opacity,元素始终占位,不跳版、不扰乱 auto-fit。
-
-```html
-<div class="body">
-  <ul>
-    <li>一直可见的前提</li>
-    <li class="frag">按一下才出现</li>
-    <li class="frag">再按一下</li>
-  </ul>
-</div>
-```
-
-## 引用页
-
-客户原话,细线分隔:
-
-```html
-<div class="body">
-  <p class="quote">"以前排查一次要两小时,现在告警自己就把根因贴脸上了。"
-    <span class="by">— 姓名 · 头衔 · 公司</span></p>
-</div>
-```
-
-## 全幅大图页
-
-图占满、文字压在上面(深色渐变保证可读):
-
-```html
-<section class="slide" style="padding:0">
-  <img src="assets/hero.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
-  <div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(5,11,20,.82))"></div>
-  <div style="position:absolute;left:8cqw;bottom:9cqh;color:#fff;max-width:70cqw">
-    <h2 style="font-size:4.6cqw">压在图上的标题</h2>
-    <p class="mt" style="color:#C9CDD3">一句说明。</p>
-  </div>
-</section>
-```
-
-## 换主题色
-
-默认 Tier0 绿(henkel总体)。**AWS-TIER0 用的是 SUPCON 炫彩渐变**——只改这一段,中性色 token 一律不动:
-
-```css
-:root { --accent: #0057E3; }
-.hl, .metric {
-  background: linear-gradient(100deg,#00B3FF 0%,#0057E3 36%,#5A2BE0 70%,#C71E8E 100%);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent; color: transparent;
-}
-```
-
-深底页上的 `.hl` 仍用 `--lime`,渐变在黑底上会糊。
+所有内容在初始 HTML 中；状态只控制 class、`hidden`、`aria-hidden`、`inert` 等。原稿部分标题由 JS `textContent` 改写，这一实现不适合可持久编辑的正文，不能原样继承。检查的不只是第一页，还包括最后一步、回退、媒体幕和减少动画模式。
