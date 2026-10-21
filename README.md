@@ -2,7 +2,7 @@
 
 制作自包含 HTML 演讲 deck，默认参考 [factory-software](https://m3rcyzzz.club/factory-software/)：白底、墨黑、少量绿、常规字重的大字和留白，以分步图解和演示视频推进内容。旧版默认的 eyebrow、暗底封面、渐变强调和 cqw 排版已由新的 1600×900 整体缩放模板替代。
 
-[在线说明与模板预览](https://m3rcyzzz.club/mercydeck/) · [下载完整 skill](https://m3rcyzzz.club/mercydeck/mercydeck.zip)
+[在线说明与模板预览](https://m3rcyzzz.club/mercydeck/) · [下载完整 skill](https://github.com/M3rcyzzz/Mercydeck/archive/refs/heads/main.zip)
 
 ## 安装
 
@@ -16,7 +16,7 @@ git clone https://github.com/M3rcyzzz/Mercydeck.git ~/.codex/skills/mercydeck
 git clone https://github.com/M3rcyzzz/Mercydeck.git ~/.claude/skills/mercydeck
 ```
 
-也可以下载 ZIP，将其中的 `mercydeck` 文件夹放进相应技能目录。如果该目录已存在，先保留自己的修改，再更新。技能名称仍为 `mercydeck`。
+也可以下载 ZIP，将解压后的技能目录命名为 `mercydeck`，放进相应技能目录。如果该目录已存在，先保留自己的修改，再更新。技能名称仍为 `mercydeck`。
 
 ## 使用
 
